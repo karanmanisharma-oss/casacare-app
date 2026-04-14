@@ -4,19 +4,18 @@ import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 
 const ROLES = [
-  { value: 'individual', label: 'Individual User', desc: 'Book services for your home' },
-  { value: 'nri', label: 'NRI Owner', desc: 'Manage your property remotely' },
-  { value: 'corporate', label: 'Corporate HQ', desc: 'Manage multiple properties & AMC' },
-  { value: 'field_force', label: 'Field Technician', desc: 'Service provider / technician' },
+  { value:'individual', icon:'🏠', label:'Individual', desc:'Home repairs & services', color:'#1D9E75' },
+  { value:'nri', icon:'✈️', label:'NRI Owner', desc:'Remote property management', color:'#1a2b4a' },
+  { value:'corporate', icon:'🏢', label:'Corporate', desc:'Multi-property & AMC', color:'#7c3aed' },
+  { value:'field_force', icon:'🔧', label:'Technician', desc:'Field service provider', color:'#ea580c' },
 ]
 
 export default function Register() {
-  const [form, setForm] = useState({ email: '', password: '', fullName: '', role: 'individual', phone: '' })
+  const [form, setForm] = useState({ email:'', password:'', fullName:'', role:'individual', phone:'' })
   const [loading, setLoading] = useState(false)
   const { signUp } = useAuth()
   const navigate = useNavigate()
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const set = (k,v) => setForm(f=>({...f,[k]:v}))
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -24,54 +23,77 @@ export default function Register() {
     const { error } = await signUp(form.email, form.password, form.fullName, form.role)
     setLoading(false)
     if (error) toast.error(error.message)
-    else { toast.success('Account created! Please check your email to verify.'); navigate('/login') }
+    else { toast.success('Account created! Check your email.'); navigate('/login') }
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0F6E56 0%, #1a2b4a 100%)', padding: '20px' }}>
-      <div style={{ width: '100%', maxWidth: '480px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <h1 style={{ color: 'white', fontSize: '24px', fontWeight: '700' }}>🏠 CasaCare</h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginTop: '4px' }}>Create your account</p>
+    <div style={{ minHeight:'100vh', display:'flex' }}>
+      <div style={{
+        flex:1, background:'linear-gradient(145deg, #0a1628 0%, #0F6E56 50%, #1D9E75 100%)',
+        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+        padding:'60px 48px', position:'relative', overflow:'hidden'
+      }}>
+        <div style={{ position:'absolute', width:'250px', height:'250px', borderRadius:'50%', background:'rgba(29,158,117,0.1)', top:'-80px', right:'-80px', animation:'float 7s ease-in-out infinite' }}/>
+        <div style={{ position:'relative', zIndex:1, color:'white', maxWidth:'380px', animation:'fadeInUp 0.8s ease both' }}>
+          <div style={{ fontSize:'48px', marginBottom:'20px' }}>🏠</div>
+          <h1 style={{ fontSize:'36px', fontWeight:'800', fontFamily:"'Plus Jakarta Sans',sans-serif", marginBottom:'16px', letterSpacing:'-0.5px' }}>Join CasaCare</h1>
+          <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'15px', lineHeight:'1.7', marginBottom:'32px' }}>India's most trusted platform for property & asset management</p>
+          {['✅ Verified expert technicians only','✅ Photo & video proof of every job','✅ NRI-friendly remote access','✅ 24×7 emergency support','✅ Transparent pricing always'].map((f,i) => (
+            <div key={f} style={{ color:'rgba(255,255,255,0.85)', fontSize:'14px', fontWeight:'500', marginBottom:'10px', animation:`slideInLeft 0.4s ease ${i*0.08}s both` }}>{f}</div>
+          ))}
         </div>
-        <div className="card card-pad">
+      </div>
+
+      <div style={{ width:'540px', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', padding:'40px 48px', background:'#F7FFFE', overflowY:'auto' }}>
+        <div style={{ width:'100%', animation:'fadeInUp 0.6s ease 0.2s both' }}>
+          <div style={{ marginBottom:'24px' }}>
+            <h2 style={{ fontSize:'26px', fontWeight:'800', fontFamily:"'Plus Jakarta Sans',sans-serif", color:'#1f2937', marginBottom:'6px', letterSpacing:'-0.3px' }}>Create your account</h2>
+            <p style={{ fontSize:'14px', color:'#9ca3af' }}>Choose your role to personalise your experience</p>
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'22px' }}>
+            {ROLES.map((r,i) => (
+              <div key={r.value} onClick={()=>set('role',r.value)} style={{
+                border:`2px solid ${form.role===r.value ? r.color : '#e5e7eb'}`,
+                borderRadius:'14px', padding:'14px 12px', cursor:'pointer',
+                background: form.role===r.value ? r.color+'12' : 'white',
+                transition:'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+                transform: form.role===r.value ? 'scale(1.03)' : 'scale(1)',
+                boxShadow: form.role===r.value ? `0 6px 20px ${r.color}30` : 'none',
+                animation:`scaleIn 0.35s ease ${i*0.07}s both`
+              }}>
+                <div style={{ fontSize:'22px', marginBottom:'6px' }}>{r.icon}</div>
+                <div style={{ fontSize:'13px', fontWeight:'700', fontFamily:"'Plus Jakarta Sans',sans-serif", color: form.role===r.value ? r.color : '#1f2937' }}>{r.label}</div>
+                <div style={{ fontSize:'11px', color:'#9ca3af', marginTop:'2px' }}>{r.desc}</div>
+              </div>
+            ))}
+          </div>
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">Full name</label>
-              <input className="form-input" value={form.fullName} onChange={e => set('fullName', e.target.value)} placeholder="Your full name" required />
+              <input className="form-input" value={form.fullName} onChange={e=>set('fullName',e.target.value)} placeholder="Your full name" required/>
             </div>
-            <div className="form-group">
-              <label className="form-label">Email address</label>
-              <input className="form-input" type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" required />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Phone number</label>
-              <input className="form-input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 98765 43210" />
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' }}>
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input className="form-input" type="email" value={form.email} onChange={e=>set('email',e.target.value)} placeholder="you@example.com" required/>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Phone</label>
+                <input className="form-input" value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+91 98765 43210"/>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Password</label>
-              <input className="form-input" type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Min 8 characters" required minLength={8} />
+              <input className="form-input" type="password" value={form.password} onChange={e=>set('password',e.target.value)} placeholder="Minimum 8 characters" required minLength={8}/>
             </div>
-
-            <div className="form-group">
-              <label className="form-label">I am a...</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                {ROLES.map(r => (
-                  <div key={r.value} onClick={() => set('role', r.value)} style={{ border: `2px solid ${form.role === r.value ? 'var(--teal)' : 'var(--gray-200)'}`, borderRadius: 'var(--radius-sm)', padding: '10px 12px', cursor: 'pointer', background: form.role === r.value ? 'var(--teal-light)' : 'white', transition: 'all 0.15s' }}>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: form.role === r.value ? 'var(--teal-dark)' : 'var(--gray-800)' }}>{r.label}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--gray-400)', marginTop: '2px' }}>{r.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading} style={{ marginTop: '8px' }}>
-              {loading ? <span className="spinner" /> : 'Create account'}
+            <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading} style={{marginTop:'6px'}}>
+              {loading ? <><span className="spinner" style={{width:'18px',height:'18px'}}/> Creating account...</> : 'Create my CasaCare account →'}
             </button>
           </form>
-          <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: 'var(--gray-400)' }}>
-            Already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--teal)', fontWeight: '500' }}>Sign in</Link>
+          <p style={{ textAlign:'center', marginTop:'20px', fontSize:'14px', color:'#9ca3af' }}>
+            Already have an account? <Link to="/login" style={{ color:'#1D9E75', fontWeight:'700', textDecoration:'none' }}>Sign in →</Link>
           </p>
         </div>
       </div>

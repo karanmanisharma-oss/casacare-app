@@ -28,13 +28,13 @@ export default function IndividualDashboard() {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div>
-      <div className="page-header">
-        <h1 className="page-title">{greeting}, {profile?.full_name?.split(' ')[0]} 👋</h1>
-        <p className="page-subtitle">What service do you need today?</p>
+    <div className="animate-fade-up">
+      <div className="hero-banner">
+        <h1 className="page-title" style={{ color: 'white' }}>{greeting}, {profile?.full_name?.split(' ')[0]}! 👋</h1>
+        <p className="page-subtitle" style={{ color: 'rgba(255,255,255,0.8)' }}>What service do you need today?</p>
       </div>
 
-      <div className="stat-grid">
+      <div className="stat-grid animate-fade-up delay-1">
         <div className="stat-card">
           <div className="stat-label">Active Tickets</div>
           <div className="stat-value">{tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length}</div>
@@ -52,19 +52,19 @@ export default function IndividualDashboard() {
         </div>
       </div>
 
-      <div className="card card-pad" style={{ marginBottom: '24px' }}>
+      <div className="card card-pad animate-fade-up delay-2" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--gray-800)' }}>Book a service</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+        <div className="service-grid">
           {SERVICES.map(s => (
-            <Link key={s.category} to={`/book?category=${s.category}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px 8px', background: 'var(--gray-50)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--gray-200)', textAlign: 'center', transition: 'all 0.15s', color: 'var(--gray-700)', fontSize: '12px', fontWeight: '500' }}>
-              <span style={{ fontSize: '24px' }}>{s.icon}</span>
-              {s.label}
+            <Link key={s.category} to={`/book?category=${s.category}`} className="service-item">
+              <span className="service-icon">{s.icon}</span>
+              <span className="service-label">{s.label}</span>
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="card card-pad">
+      <div className="card card-pad animate-fade-up delay-3">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--gray-800)' }}>Recent tickets</h2>
           <Link to="/tickets" style={{ fontSize: '13px', color: 'var(--teal)', fontWeight: '500' }}>View all →</Link>

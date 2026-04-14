@@ -14,8 +14,8 @@ function AppLayout() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <main style={{ flex: 1, padding: '32px', overflowY: 'auto', background: 'var(--gray-50)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <main style={{ flex:1, padding:'32px', overflowY:'auto', background:'var(--bg)', minHeight:'100vh' }}>
+        <div style={{ maxWidth:'1100px', margin:'0 auto', animation:'fadeIn 0.3s ease' }}>
           <Outlet />
         </div>
       </main>
