@@ -67,7 +67,13 @@ export default function IndividualDashboard() {
         <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--gray-800)' }}>Book a service</h2>
         <div className="service-grid">
           {SERVICES.map(s => (
-            <div key={s.category} className="service-item" onClick={()=>navigate('/book')}>
+            <div
+              key={s.category}
+              className="service-item"
+              onClick={() => navigate('/book')}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = '' }}
+            >
               <div className="service-icon">{s.icon}</div>
               <span className="service-label">{s.label}</span>
               {s.sub && <span style={{ fontSize: '10px', color: 'var(--gray-400)', textAlign: 'center', lineHeight: 1.3, maxWidth: '100%' }}>{s.sub}</span>}
