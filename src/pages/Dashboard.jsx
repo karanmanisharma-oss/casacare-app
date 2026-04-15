@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import IndividualDashboard from './IndividualDashboard'
 import NRIDashboard from './NRIDashboard'
@@ -6,6 +7,7 @@ import { CorporateDashboard, FieldForceDashboard } from './CorporateAndFieldDash
 export default function Dashboard() {
   const { profile } = useAuth()
   const role = profile?.role || 'individual'
+  if (role === 'admin') return <Navigate to="/admin" replace />
   const dashboards = {
     individual: <IndividualDashboard />,
     nri: <NRIDashboard />,

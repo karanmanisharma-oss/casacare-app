@@ -91,6 +91,11 @@ create policy "Users can view own profile" on profiles for select using (auth.ui
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
 create policy "Users can insert own profile" on profiles for insert with check (auth.uid() = id);
 
+-- Admins can read every profile (for admin dashboard / assignments)
+create policy "Admin read all profiles" on profiles for select using (
+  exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
+);
+
 -- Properties: NRI owners see only their properties
 create policy "Owners see own properties" on properties for select using (auth.uid() = owner_id);
 create policy "Owners manage own properties" on properties for all using (auth.uid() = owner_id);

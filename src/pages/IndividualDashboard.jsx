@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 const SERVICES = [
-  { icon: '❄️', label: 'AC Repair', category: 'ac' },
-  { icon: '💧', label: 'RO / Water', category: 'ro' },
-  { icon: '🔧', label: 'Plumbing', category: 'plumbing' },
-  { icon: '⚡', label: 'Electrical', category: 'electrical' },
-  { icon: '🪵', label: 'Carpentry', category: 'carpentry' },
-  { icon: '🚿', label: 'Geyser', category: 'geyser' },
-  { icon: '🏠', label: 'Painting', category: 'painting' },
-  { icon: '📦', label: 'Movers & Packers', category: 'logistics' },
+  { icon: '⚡', label: 'Electrician', category: 'electrical', sub: 'RO · AC · Geyser · Washing Machine' },
+  { icon: '🔧', label: 'Plumbing', category: 'plumbing', sub: 'Leaks · Pipes · Fixtures' },
+  { icon: '🪵', label: 'Carpentry', category: 'carpentry', sub: 'Furniture · Doors · Windows' },
+  { icon: '🏗️', label: 'Civil Work', category: 'civil', sub: 'Painting · Renovation' },
+  { icon: '🌍', label: 'NRI Services', category: 'nri', sub: 'Property management' },
+  { icon: '📦', label: 'Movers & Packers', category: 'logistics', sub: 'Home · Office shifting' },
+  { icon: '📋', label: 'AMC', category: 'amc', sub: 'Annual maintenance' },
+  { icon: '🐾', label: 'Pet Care', category: 'pet', sub: 'Boarding · Grooming' },
 ]
 
 export default function IndividualDashboard() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -26,12 +27,22 @@ export default function IndividualDashboard() {
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const firstName = profile?.full_name?.split(' ')[0] || 'there'
 
   return (
     <div className="animate-fade-up">
       <div className="hero-banner">
-        <h1 className="page-title" style={{ color: 'white' }}>{greeting}, {profile?.full_name?.split(' ')[0]}! 👋</h1>
-        <p className="page-subtitle" style={{ color: 'rgba(255,255,255,0.8)' }}>What service do you need today?</p>
+        <div style={{position:'relative',zIndex:1}}>
+          <p style={{margin:'0 0 4px',fontSize:'13px',color:'rgba(255,255,255,0.7)',fontWeight:'600',textTransform:'uppercase',letterSpacing:'0.06em'}}>
+            {greeting}, {firstName}! 👋
+          </p>
+          <h1 style={{margin:'0 0 8px',fontSize:'28px',fontWeight:'800',fontFamily:"'Plus Jakarta Sans',sans-serif",letterSpacing:'-0.5px'}}>
+            What service do you need today?
+          </h1>
+          <p style={{margin:0,color:'rgba(255,255,255,0.65)',fontSize:'14px'}}>
+            Home. Health. Happiness.
+          </p>
+        </div>
       </div>
 
       <div className="stat-grid animate-fade-up delay-1">
@@ -56,10 +67,11 @@ export default function IndividualDashboard() {
         <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--gray-800)' }}>Book a service</h2>
         <div className="service-grid">
           {SERVICES.map(s => (
-            <Link key={s.category} to={`/book?category=${s.category}`} className="service-item">
-              <span className="service-icon">{s.icon}</span>
+            <div key={s.category} className="service-item" onClick={()=>navigate('/book')}>
+              <div className="service-icon">{s.icon}</div>
               <span className="service-label">{s.label}</span>
-            </Link>
+              {s.sub && <span style={{ fontSize: '10px', color: 'var(--gray-400)', textAlign: 'center', lineHeight: 1.3, maxWidth: '100%' }}>{s.sub}</span>}
+            </div>
           ))}
         </div>
       </div>

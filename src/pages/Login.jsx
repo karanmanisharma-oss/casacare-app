@@ -21,6 +21,7 @@ export default function Login() {
 
   return (
     <div style={{ minHeight:'100vh', display:'flex' }}>
+      {/* LEFT — Brand Panel */}
       <div style={{
         flex:1, display:'flex', flexDirection:'column',
         alignItems:'center', justifyContent:'center',
@@ -29,19 +30,17 @@ export default function Login() {
         position:'relative', overflow:'hidden'
       }}>
         {[
-          {w:320,h:320,top:'-100px',left:'-100px',op:0.08,delay:'0s'},
-          {w:200,h:200,bottom:'80px',right:'-60px',op:0.06,delay:'2s'},
-          {w:150,h:150,bottom:'-50px',left:'20%',op:0.1,delay:'1s'},
+          {w:320,h:320,top:'-100px',left:'-100px',op:0.08},
+          {w:200,h:200,bottom:'80px',right:'-60px',op:0.06},
+          {w:150,h:150,bottom:'-50px',left:'20%',op:0.1},
         ].map((c,i) => (
           <div key={i} style={{
             position:'absolute', width:c.w, height:c.h, borderRadius:'50%',
-            background:'rgba(29,158,117,'+c.op+')',
+            background:`rgba(29,158,117,${c.op})`,
             top:c.top, left:c.left, bottom:c.bottom, right:c.right,
-            animation:`float ${6+i}s ease-in-out infinite`,
-            animationDelay:c.delay
+            animation:`float ${6+i}s ease-in-out infinite`
           }}/>
         ))}
-
         <div style={{ position:'relative', zIndex:1, color:'white', maxWidth:'400px', animation:'fadeInUp 0.8s ease both' }}>
           <div style={{
             width:'72px', height:'72px',
@@ -50,8 +49,7 @@ export default function Login() {
             border:'1px solid rgba(255,255,255,0.25)',
             borderRadius:'22px',
             display:'flex', alignItems:'center', justifyContent:'center',
-            marginBottom:'24px', fontSize:'32px',
-            boxShadow:'0 8px 32px rgba(0,0,0,0.2)'
+            marginBottom:'24px', fontSize:'32px'
           }}>🏠</div>
 
           <h1 style={{ fontSize:'44px', fontWeight:'800', fontFamily:"'Plus Jakarta Sans',sans-serif", lineHeight:1.1, marginBottom:'12px', letterSpacing:'-1px' }}>CasaCare</h1>
@@ -81,6 +79,7 @@ export default function Login() {
         </div>
       </div>
 
+      {/* RIGHT — Login Form */}
       <div style={{
         width:'480px', flexShrink:0,
         display:'flex', alignItems:'center', justifyContent:'center',

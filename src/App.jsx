@@ -6,6 +6,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Tickets from './pages/Tickets'
 import { CorporateDashboard, FieldForceDashboard } from './pages/CorporateAndFieldDashboards'
+import AdminDashboard from './pages/AdminDashboard'
 
 function AppLayout() {
   const { user, loading } = useAuth()
@@ -40,6 +41,8 @@ function App() {
         </Route>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/field-force" element={<AdminDashboard />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/amc" element={<CorporateDashboard />} />
           <Route path="/my-jobs" element={<FieldForceDashboard />} />

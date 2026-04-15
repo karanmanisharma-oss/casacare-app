@@ -59,7 +59,6 @@ export default function Register() {
                 background: form.role===r.value ? r.color+'12' : 'white',
                 transition:'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
                 transform: form.role===r.value ? 'scale(1.03)' : 'scale(1)',
-                boxShadow: form.role===r.value ? `0 6px 20px ${r.color}30` : 'none',
                 animation:`scaleIn 0.35s ease ${i*0.07}s both`
               }}>
                 <div style={{ fontSize:'22px', marginBottom:'6px' }}>{r.icon}</div>

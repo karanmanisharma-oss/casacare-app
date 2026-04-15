@@ -26,6 +26,11 @@ const NAV = {
     {path:'/scan',icon:'📷',label:'Scan Asset'},
     {path:'/proof',icon:'✅',label:'Submit Proof'},
   ],
+  admin: [
+    {path:'/admin',icon:'⊞',label:'Dashboard'},
+    {path:'/tickets',icon:'🎫',label:'All Tickets'},
+    {path:'/admin/field-force',icon:'👷',label:'Field Force'},
+  ],
 }
 
 const ROLE_META = {
@@ -33,6 +38,7 @@ const ROLE_META = {
   nri: {color:'#1a2b4a', bg:'#eff6ff', label:'NRI Owner', dot:'#3b82f6'},
   corporate: {color:'#7c3aed', bg:'#f5f3ff', label:'Corporate HQ', dot:'#7c3aed'},
   field_force: {color:'#ea580c', bg:'#fff7ed', label:'Field Force', dot:'#ea580c'},
+  admin: {color:'#1a2b4a', bg:'#E1F5EE', label:'Admin', dot:'#1D9E75'},
 }
 
 export default function Sidebar() {
@@ -93,10 +99,7 @@ export default function Sidebar() {
               borderLeft: active ? '3px solid #1D9E75' : '3px solid transparent',
               textDecoration:'none',
               animation:`slideInLeft 0.35s ease ${i*0.06}s both`
-            }}
-            onMouseEnter={e=>{ if(!active){ e.currentTarget.style.background='#F0FAF6'; e.currentTarget.style.color='#1D9E75'; e.currentTarget.style.transform='translateX(3px)' }}}
-            onMouseLeave={e=>{ if(!active){ e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#4b5563'; e.currentTarget.style.transform='translateX(0)' }}}
-            >
+            }}>
               <span style={{ fontSize:'17px', lineHeight:1 }}>{item.icon}</span>
               {item.label}
               {active && <div style={{ marginLeft:'auto', width:'6px', height:'6px', borderRadius:'50%', background:'#1D9E75', animation:'pulse 2s infinite' }}/>}
@@ -112,8 +115,7 @@ export default function Sidebar() {
             background:'linear-gradient(135deg, #1D9E75, #0F6E56)',
             display:'flex', alignItems:'center', justifyContent:'center',
             color:'white', fontSize:'13px', fontWeight:'800',
-            fontFamily:"'Plus Jakarta Sans',sans-serif",
-            boxShadow:'0 2px 8px rgba(29,158,117,0.3)'
+            fontFamily:"'Plus Jakarta Sans',sans-serif"
           }}>{initials}</div>
           <div style={{ minWidth:0 }}>
             <div style={{ fontSize:'13px', fontWeight:'700', color:'#1f2937', fontFamily:"'Plus Jakarta Sans',sans-serif", overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{profile?.full_name || 'User'}</div>
