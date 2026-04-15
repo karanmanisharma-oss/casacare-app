@@ -29,7 +29,7 @@ export default function Register() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex' }}>
       {/* LEFT PANEL */}
-      <div style={{
+      <div className="register-brand-panel" style={{
         flex: 1, background: 'linear-gradient(145deg, #0F6E56 0%, #1a2b4a 60%, #0d1f3c 100%)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: '60px', position: 'relative', overflow: 'hidden'
@@ -48,7 +48,7 @@ export default function Register() {
       </div>
 
       {/* RIGHT FORM */}
-      <div style={{ width: '520px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px', background: '#F8FFFE', overflowY: 'auto' }}>
+      <div className="register-form-panel" style={{ width: '520px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px', background: '#F8FFFE', overflowY: 'auto' }}>
         <div style={{ width: '100%', animation: 'fadeInUp 0.6s ease 0.2s both' }}>
           <div style={{ marginBottom: '28px' }}>
             <h2 style={{ fontSize: '26px', fontWeight: '800', fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1f2937', marginBottom: '6px' }}>Create your account</h2>
@@ -104,6 +104,12 @@ export default function Register() {
           </p>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .register-brand-panel { display: none !important; }
+          .register-form-panel { width: 100% !important; min-height: 100vh; padding: 40px 24px !important; }
+        }
+      `}</style>
     </div>
   )
 }

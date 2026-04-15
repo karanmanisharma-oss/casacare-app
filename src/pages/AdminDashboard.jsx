@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 
 export default function AdminDashboard() {
+  const { profile } = useAuth()
   const [tickets, setTickets] = useState([])
   const [fieldForce, setFieldForce] = useState([])
   const [filter, setFilter] = useState('all')
@@ -65,6 +67,18 @@ export default function AdminDashboard() {
     in_progress: '#8b5cf6',
     closed: '#10b981',
     cancelled: '#6b7280',
+  }
+
+  if (!profile) return <div className="loading-screen"><div className="spinner spinner-teal" /></div>
+
+  if (profile.role !== 'admin') {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", color: '#1a2b4a' }}>Access Denied</h2>
+        <p style={{ color: '#9ca3af', marginTop: '8px' }}>You need admin privileges to view this page.</p>
+      </div>
+    )
   }
 
   return (

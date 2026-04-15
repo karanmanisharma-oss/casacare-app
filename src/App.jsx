@@ -15,11 +15,24 @@ function AppLayout() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <main style={{ flex:1, padding:'32px', overflowY:'auto', background:'var(--bg)', minHeight:'100vh' }}>
-        <div style={{ maxWidth:'1100px', margin:'0 auto', animation:'fadeIn 0.3s ease' }}>
+      <main style={{
+        flex: 1,
+        padding: '32px',
+        overflowY: 'auto',
+        background: 'var(--bg)',
+        minHeight: '100vh',
+      }} className="main-content">
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <Outlet />
         </div>
       </main>
+      <style>{`
+        @media (max-width: 768px) {
+          .main-content {
+            padding: 72px 16px 24px 16px !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }
@@ -42,6 +55,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/field-force" element={<AdminDashboard />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/amc" element={<CorporateDashboard />} />
           <Route path="/my-jobs" element={<FieldForceDashboard />} />

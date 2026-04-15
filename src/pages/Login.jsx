@@ -22,7 +22,7 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif" }}>
       {/* LEFT BRAND PANEL */}
-      <div style={{
+      <div className="login-brand-panel" style={{
         flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', padding: '60px',
         background: 'linear-gradient(145deg, #0F6E56 0%, #1a2b4a 60%, #0d1f3c 100%)',
@@ -59,7 +59,7 @@ export default function Login() {
       </div>
 
       {/* RIGHT FORM PANEL */}
-      <div style={{
+      <div className="login-form-panel" style={{
         width: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '60px 48px', background: '#F8FFFE', flexShrink: 0
       }}>
@@ -89,6 +89,12 @@ export default function Login() {
           </p>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .login-brand-panel { display: none !important; }
+          .login-form-panel { width: 100% !important; min-height: 100vh; padding: 40px 24px !important; }
+        }
+      `}</style>
     </div>
   )
 }
