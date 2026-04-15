@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { formatDate } from '../utils/date'
 
 const SERVICES = [
   { icon: '⚡', label: 'Electrician', category: 'electrical', sub: 'RO · AC · Geyser · Washing Machine' },
@@ -103,7 +104,7 @@ function TicketRow({ ticket }) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--gray-100)' }}>
       <div>
         <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--gray-800)' }}>{ticket.title}</div>
-        <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{new Date(ticket.created_at).toLocaleDateString('en-IN')}</div>
+        <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{formatDate(ticket.created_at)}</div>
       </div>
       <span className={`badge ${statusColors[ticket.status] || 'badge-gray'}`}>{ticket.status?.replace('_', ' ')}</span>
     </div>

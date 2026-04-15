@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { formatDate, formatDateTime, isSameDay } from '../utils/date'
 
 export function CorporateDashboard() {
   const { profile } = useAuth()
@@ -52,7 +53,7 @@ export function CorporateDashboard() {
                 <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--gray-100)' }}>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '500' }}>{t.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>#{t.id?.slice(0, 8)} · {new Date(t.created_at).toLocaleDateString('en-IN')}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>#{t.id?.slice(0, 8)} · {formatDate(t.created_at)}</div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     {t.sla_breached && <span className="badge badge-red">SLA breach</span>}
@@ -74,7 +75,7 @@ export function CorporateDashboard() {
                 <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--gray-100)' }}>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '500' }}>{a.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>Expires: {new Date(a.end_date).toLocaleDateString('en-IN')}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>Expires: {formatDate(a.end_date)}</div>
                   </div>
                   <span className="badge badge-teal">Active</span>
                 </div>
@@ -97,11 +98,7 @@ export function FieldForceDashboard() {
       .then(({ data }) => { setJobs(data || []); setLoading(false) })
   }, [profile])
 
-  const today = jobs.filter(j => {
-    const d = new Date(j.scheduled_at)
-    const now = new Date()
-    return d.toDateString() === now.toDateString()
-  })
+  const today = jobs.filter(j => isSameDay(j.scheduled_at))
 
   return (
     <div>
@@ -136,7 +133,7 @@ export function FieldForceDashboard() {
             <div key={j.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--gray-100)' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: '500' }}>{j.title}</div>
-                <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{j.address || 'Address not set'} · {j.scheduled_at ? new Date(j.scheduled_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'Unscheduled'}</div>
+                <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{j.address || 'Address not set'} · {j.scheduled_at ? formatDateTime(j.scheduled_at, 'en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'Unscheduled'}</div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button className="btn btn-secondary btn-sm">Navigate</button>

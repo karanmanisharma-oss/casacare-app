@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
+import { formatDate } from '../utils/date'
 
 const CATEGORIES = ['AC Repair', 'RO / Water Purifier', 'Plumbing', 'Electrical', 'Carpentry', 'Geyser', 'Washing Machine', 'Painting', 'Civil Work', 'Movers & Packers', 'Other']
 const PRIORITIES = ['low', 'medium', 'high', 'urgent']
@@ -18,12 +19,20 @@ export default function Tickets() {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   async function load() {
-    let q = supabase.from('tickets').select('*').order('created_at', { ascending: false })
-    if (profile?.role === 'individual' || profile?.role === 'nri') q = q.eq('user_id', profile.id)
-    if (profile?.role === 'field_force') q = q.eq('assigned_to', profile.id)
-    const { data } = await q
-    setTickets(data || [])
-    setLoading(false)
+    try {
+      let q = supabase.from('tickets').select('*').order('created_at', { ascending: false })
+      if (profile?.role === 'individual' || profile?.role === 'nri') q = q.eq('user_id', profile.id)
+      if (profile?.role === 'field_force') q = q.eq('assigned_to', profile.id)
+      const { data, error } = await q
+      if (error) throw error
+      setTickets(data || [])
+    } catch (error) {
+      console.error(error)
+      toast.error('Could not load tickets')
+      setTickets([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [profile])
@@ -137,7 +146,7 @@ export default function Tickets() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '15px', fontWeight: '500', color: 'var(--gray-800)', marginBottom: '4px' }}>{t.title}</div>
                 <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>
-                  #{t.id?.slice(0, 8)} · {t.category} · {new Date(t.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  #{t.id?.slice(0, 8)} · {t.category} · {formatDate(t.created_at, 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   {t.address && ` · ${t.address}`}
                 </div>
                 {t.description && <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '6px' }}>{t.description}</div>}

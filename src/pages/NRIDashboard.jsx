@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { formatDate } from '../utils/date'
 
 export default function NRIDashboard() {
   const { profile } = useAuth()
@@ -67,7 +68,7 @@ export default function NRIDashboard() {
                 <div key={t.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--gray-100)' }}>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '500' }}>{t.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{new Date(t.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{formatDate(t.created_at, 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                   </div>
                   {t.has_photos && <span style={{ fontSize: '11px', background: 'var(--teal-light)', color: 'var(--teal-dark)', padding: '3px 8px', borderRadius: '99px', fontWeight: '600' }}>📷 Photos</span>}
                 </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
+import { formatDate } from '../utils/date'
 
 export default function AdminDashboard() {
   const { profile } = useAuth()
@@ -13,18 +14,28 @@ export default function AdminDashboard() {
 
   async function loadData() {
     setLoading(true)
-    const [{ data: tix }, { data: ff }] = await Promise.all([
-      supabase
-        .from('tickets')
-        .select(
-          '*, customer:profiles!user_id(full_name,phone,email), assignee:profiles!assigned_to(full_name,phone)',
-        )
-        .order('created_at', { ascending: false }),
-      supabase.from('profiles').select('*').eq('role', 'field_force'),
-    ])
-    setTickets(tix || [])
-    setFieldForce(ff || [])
-    setLoading(false)
+    try {
+      const [{ data: tix, error: tixError }, { data: ff, error: ffError }] = await Promise.all([
+        supabase
+          .from('tickets')
+          .select(
+            '*, customer:profiles!user_id(full_name,phone,email), assignee:profiles!assigned_to(full_name,phone)',
+          )
+          .order('created_at', { ascending: false }),
+        supabase.from('profiles').select('*').eq('role', 'field_force'),
+      ])
+      if (tixError) throw tixError
+      if (ffError) throw ffError
+      setTickets(tix || [])
+      setFieldForce(ff || [])
+    } catch (error) {
+      console.error(error)
+      toast.error('Could not load admin data')
+      setTickets([])
+      setFieldForce([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -243,7 +254,7 @@ export default function AdminDashboard() {
                 <div>
                   <div style={{ fontSize: '12px', fontWeight: '600', color: '#4b5563' }}>{t.category}</div>
                   <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
-                    {new Date(t.created_at).toLocaleDateString('en-IN')}
+                    {formatDate(t.created_at)}
                   </div>
                 </div>
 
