@@ -42,7 +42,6 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/field-force" element={<AdminDashboard />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/amc" element={<CorporateDashboard />} />
           <Route path="/my-jobs" element={<FieldForceDashboard />} />

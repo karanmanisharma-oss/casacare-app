@@ -31,40 +31,40 @@ export default function Tickets() {
   async function createTicket(e) {
     e.preventDefault()
     setSaving(true)
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-    if (sessionError) {
-      console.error(sessionError)
-      toast.error(sessionError.message)
-      setSaving(false)
-      return
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('Please sign in again')
+        setSaving(false)
+        return
+      }
+
+      const { error } = await supabase.from('tickets').insert({
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        priority: form.priority,
+        address: form.address,
+        user_id: session.user.id,
+        status: 'open',
+        has_photos: false,
+        ticket_type: 'rm',
+      })
+
+      if (error) {
+        console.error('Ticket error:', error)
+        toast.error(error.message)
+      } else {
+        toast.success('Ticket raised successfully!')
+        setShowNew(false)
+        setForm({ title: '', description: '', category: 'AC Repair', priority: 'medium', address: '' })
+        load()
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Something went wrong')
     }
-    const uid = session?.user?.id
-    if (!uid) {
-      console.error('createTicket: no session user id')
-      toast.error('Please sign in again.')
-      setSaving(false)
-      return
-    }
-    const { error } = await supabase.from('tickets').insert({
-      title: form.title,
-      description: form.description,
-      category: form.category,
-      priority: form.priority,
-      address: form.address,
-      user_id: uid,
-      status: 'open',
-      has_photos: false,
-    })
     setSaving(false)
-    if (error) {
-      console.error(error)
-      toast.error(error.message)
-      return
-    }
-    toast.success('Ticket raised successfully!')
-    setShowNew(false)
-    setForm({ title: '', description: '', category: 'AC Repair', priority: 'medium', address: '' })
-    load()
   }
 
   const filtered = filter === 'all' ? tickets : tickets.filter(t => t.status === filter)

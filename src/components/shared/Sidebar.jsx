@@ -27,9 +27,8 @@ const NAV = {
     {path:'/proof',icon:'✅',label:'Submit Proof'},
   ],
   admin: [
-    {path:'/admin',icon:'⊞',label:'Dashboard'},
-    {path:'/tickets',icon:'🎫',label:'All Tickets'},
-    {path:'/admin/field-force',icon:'👷',label:'Field Force'},
+    { path: '/admin', icon: '⚙️', label: 'Control Centre' },
+    { path: '/tickets', icon: '🎫', label: 'All Tickets' },
   ],
 }
 

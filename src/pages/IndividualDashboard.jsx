@@ -8,9 +8,9 @@ const SERVICES = [
   { icon: '🔧', label: 'Plumbing', category: 'plumbing', sub: 'Leaks · Pipes · Fixtures' },
   { icon: '🪵', label: 'Carpentry', category: 'carpentry', sub: 'Furniture · Doors · Windows' },
   { icon: '🏗️', label: 'Civil Work', category: 'civil', sub: 'Painting · Renovation' },
-  { icon: '🌍', label: 'NRI Services', category: 'nri', sub: 'Property management' },
+  { icon: '🌍', label: 'NRI Services', category: 'nri', sub: 'Remote property management' },
   { icon: '📦', label: 'Movers & Packers', category: 'logistics', sub: 'Home · Office shifting' },
-  { icon: '📋', label: 'AMC', category: 'amc', sub: 'Annual maintenance' },
+  { icon: '📋', label: 'AMC', category: 'amc', sub: 'Annual maintenance contracts' },
   { icon: '🐾', label: 'Pet Care', category: 'pet', sub: 'Boarding · Grooming' },
 ]
 
