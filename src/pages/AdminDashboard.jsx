@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 
 const TICKET_SELECT = `
   *,
-  profiles!user_id(full_name, phone),
+  customer:profiles!user_id(full_name, phone),
   assigned_profile:profiles!assigned_to(full_name)
 `
 
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
                   </tr>
                 ) : (
                   filteredTickets.map((t) => {
-                    const cust = t.profiles
+                    const cust = t.customer
                     const assignedName = t.assigned_profile?.full_name
                     return (
                       <tr key={t.id} style={{ borderBottom: '1px solid var(--gray-100)', verticalAlign: 'top' }}>
