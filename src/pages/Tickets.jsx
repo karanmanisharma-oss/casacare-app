@@ -84,6 +84,20 @@ export default function Tickets() {
 
   return (
     <div>
+      <div
+        style={{
+          background: '#ecfeff',
+          border: '1px solid #99f6e4',
+          color: '#0f766e',
+          borderRadius: '10px',
+          padding: '10px 12px',
+          fontSize: '12px',
+          marginBottom: '14px',
+          fontFamily: "'Plus Jakarta Sans',sans-serif",
+        }}
+      >
+        Debug: role={profile?.role || 'unknown'} | user={profile?.id?.slice(0, 8) || 'none'} | tickets={tickets.length}
+      </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h1 className="page-title">Service Tickets</h1>
@@ -150,6 +164,9 @@ export default function Tickets() {
                 <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>
                   #{t.id?.slice(0, 8)} · {t.category} · {formatDate(t.created_at, 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   {t.address && ` · ${t.address}`}
+                </div>
+                <div style={{ fontSize: '11px', color: '#0f766e', marginTop: '4px' }}>
+                  payment_status={t.payment_status || 'pending'} | payment_amount={t.payment_amount ?? 'null'}
                 </div>
                 {t.description && <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '6px' }}>{t.description}</div>}
               </div>
