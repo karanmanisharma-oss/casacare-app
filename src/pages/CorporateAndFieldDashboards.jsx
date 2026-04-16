@@ -92,16 +92,77 @@ export function FieldForceDashboard() {
   const { profile } = useAuth()
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [notifications, setNotifications] = useState([])
+  const [showNotifs, setShowNotifs] = useState(false)
 
   useEffect(() => {
     supabase.from('tickets').select('*').eq('assigned_to', profile?.id).order('scheduled_at', { ascending: true })
       .then(({ data }) => { setJobs(data || []); setLoading(false) })
   }, [profile])
 
+  useEffect(() => {
+    if (!profile?.id) return
+    supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', profile.id)
+      .eq('read', false)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setNotifications(data || []))
+  }, [profile])
+
+  async function markAllRead() {
+    await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('user_id', profile.id)
+    setNotifications([])
+    setShowNotifs(false)
+  }
+
   const today = jobs.filter(j => isSameDay(j.scheduled_at))
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', position: 'relative' }}>
+        <button onClick={() => setShowNotifs(!showNotifs)} style={{
+          position: 'relative', background: 'white', border: '1.5px solid #e5e7eb',
+          borderRadius: '12px', padding: '10px 16px', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: '8px',
+          fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '600', fontSize: '13px'
+        }}>
+          🔔 Notifications
+          {notifications.length > 0 && (
+            <span style={{
+              background: '#ef4444', color: 'white', borderRadius: '99px',
+              padding: '2px 7px', fontSize: '11px', fontWeight: '800'
+            }}>{notifications.length}</span>
+          )}
+        </button>
+        {showNotifs && (
+          <div style={{
+            position: 'absolute', top: '48px', right: 0, width: '320px',
+            background: 'white', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            border: '1px solid #e5e7eb', zIndex: 50, overflow: 'hidden'
+          }}>
+            <div style={{ padding: '14px 16px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: '700', fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: '14px' }}>New Jobs</span>
+              {notifications.length > 0 && (
+                <button onClick={markAllRead} style={{ background: 'none', border: 'none', color: '#1D9E75', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Mark all read</button>
+              )}
+            </div>
+            {notifications.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>No new notifications</div>
+            ) : notifications.map(n => (
+              <div key={n.id} style={{ padding: '12px 16px', borderBottom: '1px solid #f9fafb', background: '#f0fdf4' }}>
+                <div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>{n.message}</div>
+                <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>{new Date(n.created_at).toLocaleString('en-IN')}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="page-header">
         <h1 className="page-title">My Jobs 🔧</h1>
         <p className="page-subtitle">Today: {today.length} job{today.length !== 1 ? 's' : ''} scheduled</p>

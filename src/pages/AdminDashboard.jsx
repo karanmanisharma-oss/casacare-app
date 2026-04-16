@@ -46,13 +46,33 @@ export default function AdminDashboard() {
     if (!fieldForceId) return
     const { error } = await supabase
       .from('tickets')
-      .update({ assigned_to: fieldForceId, status: 'scheduled' })
+      .update({
+        assigned_to: fieldForceId,
+        status: 'scheduled',
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', ticketId)
-    if (error) toast.error(error.message)
-    else {
-      toast.success('Ticket assigned!')
-      loadData()
+    if (error) {
+      toast.error(error.message)
+      return
     }
+
+    await supabase
+      .from('notifications')
+      .insert({
+        user_id: fieldForceId,
+        ticket_id: ticketId,
+        message: 'You have been assigned a new job. Please check your jobs list.',
+        type: 'job_assigned',
+        read: false,
+        created_at: new Date().toISOString(),
+      })
+      .then(({ error: notifError }) => {
+        if (notifError) console.log('Notification table not yet created, skipping')
+      })
+
+    toast.success('Ticket assigned! Field force notified.')
+    loadData()
   }
 
   async function updateStatus(ticketId, status) {

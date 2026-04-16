@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 import { formatDate } from '../utils/date'
+import PaymentModal from '../components/shared/PaymentModal'
 
 const CATEGORIES = ['AC Repair', 'RO / Water Purifier', 'Plumbing', 'Electrical', 'Carpentry', 'Geyser', 'Washing Machine', 'Painting', 'Civil Work', 'Movers & Packers', 'Other']
 const PRIORITIES = ['low', 'medium', 'high', 'urgent']
@@ -15,6 +16,7 @@ export default function Tickets() {
   const [form, setForm] = useState({ title: '', description: '', category: 'AC Repair', priority: 'medium', address: '' })
   const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [payingTicket, setPayingTicket] = useState(null)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -70,7 +72,7 @@ export default function Tickets() {
         load()
       }
     } catch (err) {
-      console.error(err)
+      console.error('Unexpected createTicket error:', err)
       toast.error('Something went wrong')
     }
     setSaving(false)
@@ -154,11 +156,26 @@ export default function Tickets() {
               <div style={{ display: 'flex', gap: '6px', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
                 <span className={`badge ${statusColors[t.status] || 'badge-gray'}`}>{t.status?.replace('_', ' ')}</span>
                 <span className={`badge ${priorityColors[t.priority] || 'badge-gray'}`}>{t.priority}</span>
+                {t.status === 'closed' && t.payment_status !== 'paid' && (
+                  <button onClick={() => setPayingTicket(t)} style={{
+                    padding: '6px 14px', background: '#1D9E75', color: 'white',
+                    border: 'none', borderRadius: '8px', fontSize: '12px',
+                    fontWeight: '700', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif"
+                  }}>Pay Now</button>
+                )}
               </div>
             </div>
           ))
         }
       </div>
+      {payingTicket && (
+        <PaymentModal
+          ticket={payingTicket}
+          amount={payingTicket.payment_amount || 500}
+          onClose={() => setPayingTicket(null)}
+          onSuccess={() => { setPayingTicket(null); load() }}
+        />
+      )}
     </div>
   )
 }
