@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { formatDate, formatDateTime, isSameDay } from '../utils/date'
+import toast from 'react-hot-toast'
+import PhotoUpload from '../components/shared/PhotoUpload'
 
 export function CorporateDashboard() {
   const { profile } = useAuth()
@@ -94,10 +96,18 @@ export function FieldForceDashboard() {
   const [loading, setLoading] = useState(true)
   const [notifications, setNotifications] = useState([])
   const [showNotifs, setShowNotifs] = useState(false)
+  const [activeJob, setActiveJob] = useState(null)
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false)
+
+  async function load() {
+    const { data } = await supabase.from('tickets').select('*').eq('assigned_to', profile?.id).order('scheduled_at', { ascending: true })
+    setJobs(data || [])
+    setLoading(false)
+  }
 
   useEffect(() => {
-    supabase.from('tickets').select('*').eq('assigned_to', profile?.id).order('scheduled_at', { ascending: true })
-      .then(({ data }) => { setJobs(data || []); setLoading(false) })
+    if (!profile?.id) return
+    load()
   }, [profile])
 
   useEffect(() => {
@@ -213,11 +223,80 @@ export function FieldForceDashboard() {
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button className="btn btn-secondary btn-sm">Navigate</button>
                 <button className="btn btn-primary btn-sm">Start job</button>
+                <button
+                  onClick={() => { setActiveJob(j); setShowPhotoUpload(true) }}
+                  style={{
+                    padding: '7px 14px',
+                    background: '#f0fdf4',
+                    color: '#166534',
+                    border: '1.5px solid #bbf7d0',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    fontFamily: "'Plus Jakarta Sans',sans-serif"
+                  }}
+                >
+                  📷 Upload Proof
+                </button>
               </div>
             </div>
           ))
         }
       </div>
+      {showPhotoUpload && activeJob && (
+        <div style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 100, padding: '20px'
+        }}>
+          <div style={{
+            background: 'white', borderRadius: '20px', padding: '24px',
+            width: '100%', maxWidth: '480px',
+            maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', fontSize: '16px', color: '#1a2b4a' }}>
+                Upload Proof of Service
+              </h3>
+              <button onClick={() => setShowPhotoUpload(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#9ca3af' }}>✕</button>
+            </div>
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+              Job: {activeJob.title}
+            </p>
+            <PhotoUpload
+              ticketId={activeJob.id}
+              onUploadComplete={() => {
+                toast.success('Proof submitted! Admin has been notified.')
+                setShowPhotoUpload(false)
+                load()
+              }}
+            />
+            <button
+              onClick={async () => {
+                const { error } = await supabase.from('tickets')
+                  .update({ status: 'closed', closed_at: new Date().toISOString() })
+                  .eq('id', activeJob.id)
+                if (!error) {
+                  toast.success('Job marked as complete!')
+                  setShowPhotoUpload(false)
+                  load()
+                }
+              }}
+              style={{
+                width: '100%', marginTop: '16px', padding: '13px',
+                background: 'linear-gradient(135deg, #1D9E75, #0F6E56)',
+                color: 'white', border: 'none', borderRadius: '12px',
+                fontWeight: '700', fontSize: '14px', cursor: 'pointer',
+                fontFamily: "'Plus Jakarta Sans',sans-serif"
+              }}
+            >
+              Mark Job Complete ✓
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

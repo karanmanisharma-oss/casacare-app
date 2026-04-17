@@ -17,6 +17,7 @@ export default function Tickets() {
   const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState('all')
   const [payingTicket, setPayingTicket] = useState(null)
+  const [viewingTicket, setViewingTicket] = useState(null)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -190,6 +191,14 @@ export default function Tickets() {
               <div style={{ display: 'flex', gap: '6px', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
                 <span className={`badge ${statusColors[t.status] || 'badge-gray'}`}>{t.status?.replace('_', ' ')}</span>
                 <span className={`badge ${priorityColors[t.priority] || 'badge-gray'}`}>{t.priority}</span>
+                {t.has_photos && (
+                  <button
+                    onClick={() => setViewingTicket(t.id)}
+                    style={{ padding: '5px 12px', background: '#f0fdf4', color: '#166534', border: '1.5px solid #bbf7d0', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                  >
+                    📷 View Proof
+                  </button>
+                )}
                 {t.status === 'closed' && t.payment_status !== 'paid' && (
                   <button onClick={() => setPayingTicket(t)} style={{
                     padding: '6px 14px', background: '#1D9E75', color: 'white',
@@ -210,6 +219,34 @@ export default function Tickets() {
           onSuccess={() => { setPayingTicket(null); load() }}
         />
       )}
+      {viewingTicket && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '480px', maxHeight: '85vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', color: '#1a2b4a' }}>Service Proof</h3>
+              <button onClick={() => setViewingTicket(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+            </div>
+            <TicketPhotos ticketId={viewingTicket} />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TicketPhotos({ ticketId }) {
+  const [photos, setPhotos] = useState([])
+  useEffect(() => {
+    supabase.from('ticket_photos').select('*').eq('ticket_id', ticketId)
+      .then(({ data }) => setPhotos(data || []))
+  }, [ticketId])
+  return photos.length === 0 ? (
+    <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>No photos yet</p>
+  ) : (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '10px' }}>
+      {photos.map(p => (
+        <img key={p.id} src={p.url} alt="proof" style={{ width: '100%', borderRadius: '10px', objectFit: 'cover', height: '150px' }} />
+      ))}
     </div>
   )
 }

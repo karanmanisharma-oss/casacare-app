@@ -11,6 +11,7 @@ export default function AdminDashboard() {
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('tickets')
+  const [viewingPhotos, setViewingPhotos] = useState(null)
 
   async function loadData() {
     setLoading(true)
@@ -322,6 +323,24 @@ export default function AdminDashboard() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {t.has_photos && (
+                    <button
+                      onClick={() => setViewingPhotos(t.id)}
+                      style={{
+                        padding: '5px 12px',
+                        background: '#eff6ff',
+                        color: '#1e40af',
+                        border: '1.5px solid #bfdbfe',
+                        borderRadius: '8px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        fontFamily: "'Plus Jakarta Sans',sans-serif"
+                      }}
+                    >
+                      📷 Photos
+                    </button>
+                  )}
                   {['open', 'scheduled', 'in_progress', 'closed']
                     .filter((s) => t.status !== s)
                     .map((s) => (
@@ -422,6 +441,48 @@ export default function AdminDashboard() {
           )}
         </div>
       )}
+      {viewingPhotos && <PhotoViewer ticketId={viewingPhotos} onClose={() => setViewingPhotos(null)} />}
+    </div>
+  )
+}
+
+function PhotoViewer({ ticketId, onClose }) {
+  const [photos, setPhotos] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase.from('ticket_photos')
+      .select('*')
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setPhotos(data || []); setLoading(false) })
+  }, [ticketId])
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
+      <div style={{ background: 'white', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', color: '#1a2b4a' }}>Proof of Service Photos</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#9ca3af' }}>✕</button>
+        </div>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>Loading photos...</div>
+        ) : photos.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>No photos uploaded yet</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '12px' }}>
+            {photos.map(p => (
+              <div key={p.id} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                <img src={p.url} alt="Proof" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
+                <div style={{ padding: '8px 10px', background: '#f9fafb' }}>
+                  <div style={{ fontSize: '11px', color: '#6b7280' }}>{new Date(p.created_at).toLocaleString('en-IN')}</div>
+                  {p.caption && <div style={{ fontSize: '12px', color: '#1f2937', fontWeight: '500', marginTop: '2px' }}>{p.caption}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
