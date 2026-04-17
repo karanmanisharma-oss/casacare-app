@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 import { formatDate } from '../utils/date'
 import PaymentModal from '../components/shared/PaymentModal'
+import { getErrorMessage, errorMessageIncludes } from '../utils/error'
 
 const CATEGORIES = ['AC Repair', 'RO / Water Purifier', 'Plumbing', 'Electrical', 'Carpentry', 'Geyser', 'Washing Machine', 'Painting', 'Civil Work', 'Movers & Packers', 'Other']
 const PRIORITIES = ['low', 'medium', 'high', 'urgent']
@@ -72,10 +73,10 @@ export default function Tickets() {
 
       if (error) {
         console.error('Ticket error:', error)
-        if (error.message.includes('foreign key')) {
+        if (errorMessageIncludes(error, ['foreign key'])) {
           toast.error('Profile error. Please sign out and sign back in.')
         } else {
-          toast.error(error.message)
+          toast.error(getErrorMessage(error, 'Could not raise ticket. Please try again.'))
         }
       } else {
         toast.success('Service request raised! We will assign a technician shortly.')
@@ -96,32 +97,22 @@ export default function Tickets() {
 
   return (
     <div>
-      <div
-        style={{
-          background: '#ecfeff',
-          border: '1px solid #99f6e4',
-          color: '#0f766e',
-          borderRadius: '10px',
-          padding: '10px 12px',
-          fontSize: '12px',
-          marginBottom: '14px',
-          fontFamily: "'Plus Jakarta Sans',sans-serif",
-        }}
-      >
-        Debug: role={profile?.role || 'unknown'} | user={profile?.id?.slice(0, 8) || 'none'} | tickets={tickets.length}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <h1 className="page-title">Service Tickets</h1>
-          <p className="page-subtitle">Raise and track all your service requests</p>
+      <div className="card card-pad" style={{ marginBottom: '18px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 className="page-title">Service Tickets</h1>
+            <p className="page-subtitle">Raise and track all your service requests</p>
+          </div>
+          <button className="btn btn-primary" onClick={() => setShowNew(true)}>+ New Ticket</button>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowNew(true)}>+ New Ticket</button>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {['all', 'open', 'in_progress', 'scheduled', 'closed'].map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`btn btn-sm ${filter === s ? 'btn-primary' : 'btn-secondary'}`}>{s.replace('_', ' ')}</button>
-        ))}
+      <div className="card card-pad" style={{ marginBottom: '18px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {['all', 'open', 'in_progress', 'scheduled', 'closed'].map(s => (
+            <button key={s} onClick={() => setFilter(s)} className={`btn btn-sm ${filter === s ? 'btn-primary' : 'btn-secondary'}`}>{s.replace('_', ' ')}</button>
+          ))}
+        </div>
       </div>
 
       {showNew && (
@@ -176,7 +167,7 @@ export default function Tickets() {
           : filtered.length === 0
           ? <div style={{ textAlign: 'center', padding: '48px', color: 'var(--gray-400)', fontSize: '14px' }}>No tickets found. Click "+ New Ticket" to get started.</div>
           : filtered.map(t => (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--gray-100)', gap: '12px' }}>
+            <div key={t.id} className="ticket-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--gray-100)', gap: '12px' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '15px', fontWeight: '500', color: 'var(--gray-800)', marginBottom: '4px' }}>{t.title}</div>
                 <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>
@@ -184,7 +175,7 @@ export default function Tickets() {
                   {t.address && ` · ${t.address}`}
                 </div>
                 <div style={{ fontSize: '11px', color: '#0f766e', marginTop: '4px' }}>
-                  payment_status={t.payment_status || 'pending'} | payment_amount={t.payment_amount ?? 'null'}
+                  payment {t.payment_status || 'pending'} | amount {t.payment_amount ?? 'TBD'}
                 </div>
                 {t.description && <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '6px' }}>{t.description}</div>}
               </div>

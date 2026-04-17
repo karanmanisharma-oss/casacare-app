@@ -134,20 +134,6 @@ export function FieldForceDashboard() {
 
   return (
     <div>
-      <div
-        style={{
-          background: '#ecfeff',
-          border: '1px solid #99f6e4',
-          color: '#0f766e',
-          borderRadius: '10px',
-          padding: '10px 12px',
-          fontSize: '12px',
-          marginBottom: '14px',
-          fontFamily: "'Plus Jakarta Sans',sans-serif",
-        }}
-      >
-        Debug: role={profile?.role || 'unknown'} | user={profile?.id?.slice(0, 8) || 'none'} | jobs={jobs.length} | unread={notifications.length}
-      </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', position: 'relative' }}>
         <button onClick={() => setShowNotifs(!showNotifs)} style={{
           position: 'relative', background: 'white', border: '1.5px solid #e5e7eb',

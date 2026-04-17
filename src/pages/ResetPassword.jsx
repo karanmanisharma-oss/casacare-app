@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
+import { getErrorMessage } from '../utils/error'
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const navigate = useNavigate()
@@ -20,7 +22,7 @@ export default function ResetPassword() {
     setLoading(false)
 
     if (error) {
-      toast.error(error.message)
+      toast.error(getErrorMessage(error, 'Could not update password. Please try again.'))
     } else {
       setDone(true)
       toast.success('Password updated successfully!')
@@ -43,11 +45,40 @@ export default function ResetPassword() {
           <form onSubmit={handleReset}>
             <div className="form-group">
               <label className="form-label">New password</label>
-              <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" required minLength={8} />
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="form-input"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Min 8 characters"
+                  required
+                  minLength={8}
+                  style={{ paddingRight: '46px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: '10px',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#6b7280',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {showPassword ? 'HIDE' : 'SHOW'}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Confirm new password</label>
-              <input className="form-input" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repeat password" required />
+              <input className="form-input" type={showPassword ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repeat password" required />
             </div>
             <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
               {loading ? <><span className="spinner" style={{ width: '18px', height: '18px' }} /> Updating...</> : 'Update password →'}

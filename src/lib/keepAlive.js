@@ -1,7 +1,11 @@
 import { supabase } from './supabase'
 
+let keepAliveIntervalId = null
+
 // Ping Supabase every 4 days to prevent free tier pausing
 export function startKeepAlive() {
+  if (keepAliveIntervalId) return () => clearInterval(keepAliveIntervalId)
+
   const FOUR_DAYS = 4 * 24 * 60 * 60 * 1000
 
   async function ping() {
@@ -14,5 +18,10 @@ export function startKeepAlive() {
   }
 
   ping() // ping immediately on load
-  setInterval(ping, FOUR_DAYS)
+  keepAliveIntervalId = setInterval(ping, FOUR_DAYS)
+
+  return () => {
+    clearInterval(keepAliveIntervalId)
+    keepAliveIntervalId = null
+  }
 }

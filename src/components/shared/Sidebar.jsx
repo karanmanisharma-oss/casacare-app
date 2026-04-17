@@ -133,17 +133,18 @@ export default function Sidebar() {
       )}
 
       {/* Sidebar — desktop always visible, mobile slides in */}
-      <aside style={{
+      <aside className="floating-panel desktop-sidebar" style={{
         width: '252px',
         minHeight: '100vh',
         flexShrink: 0,
-        background: 'rgba(255,255,255,0.97)',
+        background: 'rgba(255,255,255,0.88)',
         backdropFilter: 'blur(20px)',
-        borderRight: '1px solid rgba(29,158,117,0.1)',
-        boxShadow: '4px 0 24px rgba(0,0,0,0.04)',
+        borderRight: '1px solid rgba(255,255,255,0.72)',
+        boxShadow: '8px 0 34px rgba(20, 39, 56, 0.08)',
         position: 'relative',
         zIndex: 400,
-      }} className="desktop-sidebar">
+        borderRadius: 0,
+      }}>
         <SidebarContent />
       </aside>
 
@@ -151,11 +152,11 @@ export default function Sidebar() {
       <div style={{
         position: 'fixed', top: 0, left: 0, bottom: 0,
         width: '280px',
-        background: 'white',
+        background: 'linear-gradient(165deg, rgba(255,255,255,0.96), rgba(242,248,255,0.9))',
         zIndex: 400,
         transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
         transition: 'transform 0.3s cubic-bezier(0.22,1,0.36,1)',
-        boxShadow: mobileOpen ? '4px 0 32px rgba(0,0,0,0.15)' : 'none',
+        boxShadow: mobileOpen ? '8px 0 38px rgba(20, 39, 56, 0.2)' : 'none',
         overflowY: 'auto',
       }} className="mobile-drawer">
         <SidebarContent />

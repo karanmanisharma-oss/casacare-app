@@ -3,14 +3,18 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
+import { getErrorMessage, errorMessageIncludes } from '../utils/error'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [forgotMode, setForgotMode] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
   const [resetSent, setResetSent] = useState(false)
+  const [showResetHint, setShowResetHint] = useState(false)
+  const [failedAttempts, setFailedAttempts] = useState(0)
   const { signIn } = useAuth()
   const navigate = useNavigate()
 
@@ -20,23 +24,42 @@ export default function Login() {
     if (!email.trim()) { toast.error('Please enter your email address'); return }
     if (!password.trim()) { toast.error('Please enter your password'); return }
 
+    const normalizedEmail = email.trim().toLowerCase()
     setLoading(true)
-    const { error } = await signIn(email.trim().toLowerCase(), password)
+    const { error } = await signIn(normalizedEmail, password)
     setLoading(false)
 
     if (error) {
-      if (error.message.includes('Invalid login')
-        || error.message.includes('invalid_credentials')
-        || error.message.includes('Email not confirmed')) {
+      const isInvalidCredentials = errorMessageIncludes(error, [
+        'invalid login',
+        'invalid_credentials',
+        'email not confirmed',
+      ])
+      const isNikUser = normalizedEmail.split('@')[0].startsWith('nik')
+
+      if (isInvalidCredentials) {
+        const nextAttempts = failedAttempts + 1
+        setFailedAttempts(nextAttempts)
+        setShowResetHint(true)
         toast.error('Wrong email or password. Please check and try again.')
-      } else if (error.message.includes('rate limit')) {
+        if (nextAttempts >= 2) {
+          setResetEmail(normalizedEmail)
+          setForgotMode(true)
+          toast('Multiple failed attempts detected. Reset password to continue quickly.', { icon: '🔐' })
+        }
+        if (isNikUser) {
+          toast('Looks like a password mismatch. You can reset your password below.', { icon: '🔑' })
+        }
+      } else if (errorMessageIncludes(error, ['rate limit'])) {
         toast.error('Too many attempts. Please wait 5 minutes and try again.')
-      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+      } else if (errorMessageIncludes(error, ['network', 'fetch'])) {
         toast.error('Network error. Please check your internet connection.')
       } else {
         toast.error('Could not sign in. Please try again.')
       }
     } else {
+      setShowResetHint(false)
+      setFailedAttempts(0)
       toast.success('Welcome back!')
       navigate('/dashboard')
     }
@@ -52,7 +75,7 @@ export default function Login() {
     )
     setLoading(false)
     if (error) {
-      toast.error(error.message)
+      toast.error(getErrorMessage(error, 'Could not send reset email. Please try again.'))
     } else {
       setResetSent(true)
       toast.success('Password reset email sent!')
@@ -60,7 +83,7 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif" }}>
+    <div className="depth-shell" style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif" }}>
       {/* LEFT BRAND PANEL */}
       <div className="login-brand-panel" style={{
         flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -105,9 +128,9 @@ export default function Login() {
       </div>
 
       {/* RIGHT FORM PANEL */}
-      <div className="login-form-panel" style={{
+      <div className="login-form-panel floating-panel" style={{
         width: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '60px 48px', background: '#F8FFFE', flexShrink: 0
+        padding: '60px 48px', background: 'rgba(248,255,254,0.72)', flexShrink: 0
       }}>
         <div style={{ width: '100%', animation: 'fadeInUp 0.6s ease 0.2s both' }}>
           <div style={{ marginBottom: '36px' }}>
@@ -159,12 +182,84 @@ export default function Login() {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label">Email address</label>
-                <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
+                <input
+                  className="form-input"
+                  type="email"
+                  value={email}
+                  onChange={e => {
+                    setEmail(e.target.value)
+                    if (showResetHint) setShowResetHint(false)
+                  }}
+                  placeholder="you@example.com"
+                  required
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Password</label>
-                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className="form-input"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => {
+                      setPassword(e.target.value)
+                      if (showResetHint) setShowResetHint(false)
+                    }}
+                    placeholder="••••••••"
+                    required
+                    style={{ paddingRight: '46px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      right: '10px',
+                      transform: 'translateY(-50%)',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#6b7280',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {showPassword ? 'HIDE' : 'SHOW'}
+                  </button>
+                </div>
               </div>
+              {showResetHint && (
+                <div style={{
+                  background: '#fffbeb',
+                  border: '1px solid #fde68a',
+                  color: '#92400e',
+                  borderRadius: '10px',
+                  padding: '10px 12px',
+                  fontSize: '12px',
+                  marginBottom: '14px',
+                }}>
+                  Password looks incorrect.{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetEmail(email.trim().toLowerCase())
+                      setForgotMode(true)
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#0F6E56',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      padding: 0,
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Send reset link
+                  </button>
+                </div>
+              )}
               <p style={{
                 fontSize: '12px', color: '#9ca3af',
                 marginTop: '-10px', marginBottom: '16px',
@@ -180,7 +275,11 @@ export default function Login() {
 
           <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px' }}>
             <button
-              onClick={() => setForgotMode(!forgotMode)}
+              onClick={() => {
+                const nextForgotMode = !forgotMode
+                if (nextForgotMode && !resetEmail.trim()) setResetEmail(email.trim().toLowerCase())
+                setForgotMode(nextForgotMode)
+              }}
               style={{ background: 'none', border: 'none', color: '#1D9E75', fontWeight: '600', cursor: 'pointer', fontSize: '13px', fontFamily: "'Plus Jakarta Sans',sans-serif" }}
             >
               {forgotMode ? '← Back to sign in' : 'Forgot your password?'}

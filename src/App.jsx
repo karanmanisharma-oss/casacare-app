@@ -17,13 +17,13 @@ function AppLayout() {
   if (loading) return <div className="loading-screen"><div className="spinner" style={{ width: '32px', height: '32px' }} /></div>
   if (!user) return <Navigate to="/login" replace />
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="depth-shell" style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
       <main style={{
         flex: 1,
         padding: '32px',
         overflowY: 'auto',
-        background: 'var(--bg)',
+        background: 'transparent',
         minHeight: '100vh',
       }} className="main-content">
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>

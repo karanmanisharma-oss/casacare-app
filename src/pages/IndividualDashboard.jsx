@@ -32,7 +32,7 @@ export default function IndividualDashboard() {
 
   return (
     <div className="animate-fade-up">
-      <div className="hero-banner">
+      <div className="hero-banner floating-panel">
         <div style={{position:'relative',zIndex:1}}>
           <p style={{margin:'0 0 4px',fontSize:'13px',color:'rgba(255,255,255,0.7)',fontWeight:'600',textTransform:'uppercase',letterSpacing:'0.06em'}}>
             {greeting}, {firstName}! 👋
@@ -70,7 +70,7 @@ export default function IndividualDashboard() {
           {SERVICES.map(s => (
             <div
               key={s.category}
-              className="service-item"
+              className="service-item floating-panel"
               onClick={() => navigate('/book')}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)' }}
               onMouseLeave={e => { e.currentTarget.style.transform = '' }}

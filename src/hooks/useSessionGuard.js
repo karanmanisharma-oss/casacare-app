@@ -8,11 +8,9 @@ export function useSessionGuard() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-        if (event === 'SIGNED_OUT') {
-          toast('Session expired. Please sign in again.', { icon: '🔒' })
-          navigate('/login')
-        }
+      if (event === 'SIGNED_OUT') {
+        toast('Session expired. Please sign in again.', { icon: '🔒' })
+        navigate('/login')
       }
     })
     return () => subscription.unsubscribe()
