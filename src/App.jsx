@@ -7,9 +7,12 @@ import Dashboard from './pages/Dashboard'
 import Tickets from './pages/Tickets'
 import { CorporateDashboard, FieldForceDashboard } from './pages/CorporateAndFieldDashboards'
 import AdminDashboard from './pages/AdminDashboard'
+import HealthCheck from './pages/HealthCheck'
+import { useSessionGuard } from './hooks/useSessionGuard'
 
 function AppLayout() {
   const { user, loading } = useAuth()
+  useSessionGuard()
   if (loading) return <div className="loading-screen"><div className="spinner" style={{ width: '32px', height: '32px' }} /></div>
   if (!user) return <Navigate to="/login" replace />
   return (
@@ -67,6 +70,7 @@ function App() {
           <Route path="/proof" element={<Dashboard />} />
           <Route path="/team" element={<Dashboard />} />
         </Route>
+        <Route path="/health" element={<HealthCheck />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

@@ -41,21 +41,28 @@ export default function Tickets() {
 
   async function createTicket(e) {
     e.preventDefault()
+    
+    // Validate all required fields
+    if (!form.title.trim()) { toast.error('Please enter an issue title'); return }
+    if (!form.category) { toast.error('Please select a service category'); return }
+    if (!form.address.trim()) { toast.error('Please enter your service address'); return }
+    if (form.title.trim().length < 5) { toast.error('Title must be at least 5 characters'); return }
+
     setSaving(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        toast.error('Please sign in again')
+      if (!session?.user) {
+        toast.error('Session expired. Please sign in again.')
         setSaving(false)
         return
       }
 
       const { error } = await supabase.from('tickets').insert({
-        title: form.title,
-        description: form.description,
+        title: form.title.trim(),
+        description: form.description.trim(),
         category: form.category,
         priority: form.priority,
-        address: form.address,
+        address: form.address.trim(),
         user_id: session.user.id,
         status: 'open',
         has_photos: false,
@@ -64,16 +71,20 @@ export default function Tickets() {
 
       if (error) {
         console.error('Ticket error:', error)
-        toast.error(error.message)
+        if (error.message.includes('foreign key')) {
+          toast.error('Profile error. Please sign out and sign back in.')
+        } else {
+          toast.error(error.message)
+        }
       } else {
-        toast.success('Ticket raised successfully!')
+        toast.success('Service request raised! We will assign a technician shortly.')
         setShowNew(false)
         setForm({ title: '', description: '', category: 'AC Repair', priority: 'medium', address: '' })
         load()
       }
     } catch (err) {
-      console.error('Unexpected createTicket error:', err)
-      toast.error('Something went wrong')
+      console.error(err)
+      toast.error('Network error. Please check your connection and try again.')
     }
     setSaving(false)
   }
@@ -154,7 +165,13 @@ export default function Tickets() {
       )}
 
       <div className="card">
-        {loading ? <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}><div className="spinner" /></div>
+        {loading ? (
+          <div style={{ padding: '20px' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="skeleton skeleton-card" style={{ marginBottom: '10px' }} />
+            ))}
+          </div>
+        )
           : filtered.length === 0
           ? <div style={{ textAlign: 'center', padding: '48px', color: 'var(--gray-400)', fontSize: '14px' }}>No tickets found. Click "+ New Ticket" to get started.</div>
           : filtered.map(t => (
