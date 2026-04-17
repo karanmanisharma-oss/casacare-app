@@ -230,6 +230,22 @@ export default function Tickets() {
           </div>
         </div>
       )}
+      <a
+        href="https://wa.me/919810223963?text=Hi%20CasaCare%2C%20I%20need%20help%20with%20a%20service"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          position: 'fixed', bottom: '24px', right: '24px',
+          width: '56px', height: '56px',
+          background: '#25D366', borderRadius: '50%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(37,211,102,0.4)',
+          zIndex: 50, fontSize: '28px', textDecoration: 'none',
+          transition: 'transform 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)' }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+      >💬</a>
     </div>
   )
 }

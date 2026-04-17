@@ -56,7 +56,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div style={{ padding: '20px 16px 14px', borderBottom: '1px solid rgba(29,158,117,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '40px', height: '40px', flexShrink: 0, background: 'linear-gradient(135deg, #1D9E75, #0F6E56)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', boxShadow: '0 4px 12px rgba(29,158,117,0.3)' }}>🏠</div>
+          <img src="/brand/logo.jpg" alt="CasaCare" style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '8px' }} />
           <div>
             <div style={{ fontWeight: '800', fontSize: '16px', fontFamily: "'Plus Jakarta Sans',sans-serif", color: '#1a2b4a' }}>CasaCare</div>
             <div style={{ fontSize: '10px', color: '#9ca3af', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Property Hub</div>
@@ -121,7 +121,7 @@ export default function Sidebar() {
       <div className="mobile-topbar" style={{ display: 'none', position: 'fixed', top: 0, left: 0, right: 0, height: '56px', background: 'white', borderBottom: '1px solid rgba(29,158,117,0.1)', zIndex: 200, alignItems: 'center', padding: '0 16px', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         <button onClick={() => setMobileOpen(true)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', padding: '4px', color: '#1a2b4a' }}>☰</button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>🏠</span>
+          <img src="/brand/logo.jpg" alt="CasaCare" style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '8px' }} />
           <span style={{ fontWeight: '800', fontSize: '16px', fontFamily: "'Plus Jakarta Sans',sans-serif", color: '#1a2b4a' }}>CasaCare</span>
         </div>
         <div style={{ marginLeft: 'auto', width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #1D9E75, #0F6E56)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '12px', fontWeight: '800' }}>{initials}</div>

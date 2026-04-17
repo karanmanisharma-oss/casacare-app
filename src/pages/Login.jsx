@@ -81,8 +81,14 @@ export default function Login() {
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '24px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 24px', fontSize: '36px'
-          }}>🏠</div>
+            margin: '0 auto 24px'
+          }}>
+            <img
+              src="/brand/logo.jpg"
+              alt="CasaCare logo"
+              style={{ width: '44px', height: '44px', objectFit: 'contain' }}
+            />
+          </div>
           <h1 style={{ fontSize: '42px', fontWeight: '800', fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: '12px', letterSpacing: '-0.5px' }}>CasaCare</h1>
           <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.75)', marginBottom: '8px', fontWeight: '500' }}>Integrated 24×7 Property & Asset Hub</p>
           <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic' }}>One Unified Hub. Guaranteed Care.</p>
