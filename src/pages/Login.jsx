@@ -1,22 +1,62 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [forgotMode, setForgotMode] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetSent, setResetSent] = useState(false)
   const { signIn } = useAuth()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    if (!email.trim()) { toast.error('Please enter your email address'); return }
+    if (!password.trim()) { toast.error('Please enter your password'); return }
+
     setLoading(true)
-    const { error } = await signIn(email, password)
+    const { error } = await signIn(email.trim().toLowerCase(), password)
     setLoading(false)
-    if (error) toast.error(error.message)
-    else { toast.success('Welcome back!'); navigate('/dashboard') }
+
+    if (error) {
+      if (error.message.includes('Invalid login')
+        || error.message.includes('invalid_credentials')
+        || error.message.includes('Email not confirmed')) {
+        toast.error('Wrong email or password. Please check and try again.')
+      } else if (error.message.includes('rate limit')) {
+        toast.error('Too many attempts. Please wait 5 minutes and try again.')
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        toast.error('Network error. Please check your internet connection.')
+      } else {
+        toast.error('Could not sign in. Please try again.')
+      }
+    } else {
+      toast.success('Welcome back!')
+      navigate('/dashboard')
+    }
+  }
+
+  async function handleForgotPassword(e) {
+    e.preventDefault()
+    if (!resetEmail.trim()) { toast.error('Please enter your email'); return }
+    setLoading(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      resetEmail.trim().toLowerCase(),
+      { redirectTo: 'https://casacare-app.vercel.app/reset-password' }
+    )
+    setLoading(false)
+    if (error) {
+      toast.error(error.message)
+    } else {
+      setResetSent(true)
+      toast.success('Password reset email sent!')
+    }
   }
 
   return (
@@ -69,19 +109,77 @@ export default function Login() {
             <p style={{ fontSize: '14px', color: '#9ca3af' }}>Sign in to manage your properties</p>
           </div>
           
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Email address</label>
-              <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
+          {forgotMode ? (
+            <div>
+              {resetSent ? (
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
+                  <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', color: '#1a2b4a', marginBottom: '8px' }}>Check your email</h3>
+                  <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+                    We sent a password reset link to <strong>{resetEmail}</strong>.
+                    Click the link in the email to set a new password.
+                  </p>
+                  <button
+                    onClick={() => { setForgotMode(false); setResetSent(false); setResetEmail('') }}
+                    style={{ marginTop: '20px', padding: '10px 24px', background: 'linear-gradient(135deg,#1D9E75,#0F6E56)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif" }}
+                  >
+                    Back to sign in
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword}>
+                  <div style={{ marginBottom: '20px' }}>
+                    <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', fontSize: '20px', color: '#1a2b4a', marginBottom: '8px' }}>Reset your password</h3>
+                    <p style={{ fontSize: '13px', color: '#9ca3af' }}>Enter your registered email and we will send a reset link.</p>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Registered email address</label>
+                    <input
+                      className="form-input"
+                      type="email"
+                      value={resetEmail}
+                      onChange={e => setResetEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                    />
+                  </div>
+                  <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
+                    {loading ? <><span className="spinner" style={{ width: '18px', height: '18px' }} /> Sending...</> : 'Send reset link →'}
+                  </button>
+                </form>
+              )}
             </div>
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
-            </div>
-            <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading} style={{ marginTop: '8px' }}>
-              {loading ? <><span className="spinner" style={{ width: '18px', height: '18px' }} /> Signing in...</> : 'Sign in to CasaCare →'}
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Email address</label>
+                <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input className="form-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
+              </div>
+              <p style={{
+                fontSize: '12px', color: '#9ca3af',
+                marginTop: '-10px', marginBottom: '16px',
+                lineHeight: '1.5'
+              }}>
+                Make sure you use the same email and password you registered with.
+              </p>
+              <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading} style={{ marginTop: '8px' }}>
+                {loading ? <><span className="spinner" style={{ width: '18px', height: '18px' }} /> Signing in...</> : 'Sign in to CasaCare →'}
+              </button>
+            </form>
+          )}
+
+          <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px' }}>
+            <button
+              onClick={() => setForgotMode(!forgotMode)}
+              style={{ background: 'none', border: 'none', color: '#1D9E75', fontWeight: '600', cursor: 'pointer', fontSize: '13px', fontFamily: "'Plus Jakarta Sans',sans-serif" }}
+            >
+              {forgotMode ? '← Back to sign in' : 'Forgot your password?'}
             </button>
-          </form>
+          </p>
           
           <p style={{ textAlign: 'center', marginTop: '28px', fontSize: '14px', color: '#9ca3af' }}>
             New to CasaCare?{' '}

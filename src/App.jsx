@@ -8,6 +8,7 @@ import Tickets from './pages/Tickets'
 import { CorporateDashboard, FieldForceDashboard } from './pages/CorporateAndFieldDashboards'
 import AdminDashboard from './pages/AdminDashboard'
 import HealthCheck from './pages/HealthCheck'
+import ResetPassword from './pages/ResetPassword'
 import { useSessionGuard } from './hooks/useSessionGuard'
 
 function AppLayout() {
@@ -54,6 +55,7 @@ function App() {
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
