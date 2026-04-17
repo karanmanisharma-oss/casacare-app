@@ -43,8 +43,6 @@ export default function Tickets() {
 
   async function createTicket(e) {
     e.preventDefault()
-    
-    // Validate all required fields
     if (!form.title.trim()) { toast.error('Please enter an issue title'); return }
     if (!form.category) { toast.error('Please select a service category'); return }
     if (!form.address.trim()) { toast.error('Please enter your service address'); return }
@@ -96,31 +94,34 @@ export default function Tickets() {
   const priorityColors = { low: 'badge-gray', medium: 'badge-teal', high: 'badge-amber', urgent: 'badge-red' }
 
   return (
-    <div>
-      <div className="card card-pad" style={{ marginBottom: '18px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 className="page-title">Service Tickets</h1>
-            <p className="page-subtitle">Raise and track all your service requests</p>
-          </div>
-          <button className="btn btn-primary" onClick={() => setShowNew(true)}>+ New Ticket</button>
+    <div className="anim-fade-up">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+        <div>
+          <h1 className="page-title">Service Tickets</h1>
+          <p className="page-subtitle">Raise and track all your service requests</p>
         </div>
+        <button type="button" className="btn btn-primary btn-lg" onClick={() => setShowNew(true)}>+ New Ticket</button>
       </div>
 
-      <div className="card card-pad" style={{ marginBottom: '18px' }}>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {['all', 'open', 'in_progress', 'scheduled', 'closed'].map(s => (
-            <button key={s} onClick={() => setFilter(s)} className={`btn btn-sm ${filter === s ? 'btn-primary' : 'btn-secondary'}`}>{s.replace('_', ' ')}</button>
-          ))}
-        </div>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+        {['all', 'open', 'in_progress', 'scheduled', 'closed'].map(s => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setFilter(s)}
+            className={`btn btn-sm ${filter === s ? 'btn-primary' : 'btn-secondary'}`}
+          >
+            {s.replace('_', ' ')}
+          </button>
+        ))}
       </div>
 
       {showNew && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
-          <div className="card card-pad" style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowNew(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '600' }}>Raise a new ticket</h2>
-              <button onClick={() => setShowNew(false)} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'var(--gray-400)', cursor: 'pointer' }}>×</button>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', fontFamily: 'var(--font-display)', color: 'var(--gray-800)' }}>Raise a new ticket</h2>
+              <button type="button" onClick={() => setShowNew(false)} style={{ background: 'none', border: 'none', fontSize: '22px', color: 'var(--gray-400)', cursor: 'pointer', lineHeight: 1 }} aria-label="Close">×</button>
             </div>
             <form onSubmit={createTicket}>
               <div className="form-group">
@@ -149,59 +150,63 @@ export default function Tickets() {
               </div>
               <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
                 <button type="button" className="btn btn-secondary btn-full" onClick={() => setShowNew(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary btn-full" disabled={saving}>{saving ? <span className="spinner" /> : 'Raise ticket'}</button>
+                <button type="submit" className="btn btn-primary btn-full" disabled={saving}>
+                  {saving ? <span className="spinner" style={{ width: '18px', height: '18px' }} /> : 'Raise ticket'}
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      <div className="card">
+      <div className="card" style={{ overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: '20px' }}>
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3, 4].map(i => (
               <div key={i} className="skeleton skeleton-card" style={{ marginBottom: '10px' }} />
             ))}
           </div>
-        )
-          : filtered.length === 0
-          ? <div style={{ textAlign: 'center', padding: '48px', color: 'var(--gray-400)', fontSize: '14px' }}>No tickets found. Click "+ New Ticket" to get started.</div>
-          : filtered.map(t => (
-            <div key={t.id} className="ticket-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--gray-100)', gap: '12px' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '15px', fontWeight: '500', color: 'var(--gray-800)', marginBottom: '4px' }}>{t.title}</div>
+        ) : filtered.length === 0 ? (
+          <div className="empty-state">
+            <span className="empty-icon">📋</span>
+            <div className="empty-title">No tickets found</div>
+            <p className="empty-desc">Create a new ticket to get started with CasaCare service.</p>
+          </div>
+        ) : (
+          filtered.map(t => (
+            <div key={t.id} className="ticket-row">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--gray-800)', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>{t.title}</div>
                 <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>
                   #{t.id?.slice(0, 8)} · {t.category} · {formatDate(t.created_at, 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   {t.address && ` · ${t.address}`}
                 </div>
-                <div style={{ fontSize: '11px', color: '#0f766e', marginTop: '4px' }}>
-                  payment {t.payment_status || 'pending'} | amount {t.payment_amount ?? 'TBD'}
+                <div style={{ fontSize: '11px', color: 'var(--teal)', marginTop: '6px', fontWeight: '600' }}>
+                  Payment {t.payment_status || 'pending'} · {t.payment_amount != null ? `₹${t.payment_amount}` : 'Amount TBD'}
                 </div>
-                {t.description && <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '6px' }}>{t.description}</div>}
+                {t.description && <div style={{ fontSize: '13px', color: 'var(--gray-600)', marginTop: '8px', lineHeight: 1.5 }}>{t.description}</div>}
               </div>
-              <div style={{ display: 'flex', gap: '6px', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
                 <span className={`badge ${statusColors[t.status] || 'badge-gray'}`}>{t.status?.replace('_', ' ')}</span>
                 <span className={`badge ${priorityColors[t.priority] || 'badge-gray'}`}>{t.priority}</span>
                 {t.has_photos && (
                   <button
+                    type="button"
                     onClick={() => setViewingTicket(t.id)}
-                    style={{ padding: '5px 12px', background: '#f0fdf4', color: '#166534', border: '1.5px solid #bbf7d0', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                    className="btn btn-ghost btn-xs"
                   >
                     📷 View Proof
                   </button>
                 )}
                 {t.status === 'closed' && t.payment_status !== 'paid' && (
-                  <button onClick={() => setPayingTicket(t)} style={{
-                    padding: '6px 14px', background: '#1D9E75', color: 'white',
-                    border: 'none', borderRadius: '8px', fontSize: '12px',
-                    fontWeight: '700', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif"
-                  }}>Pay Now</button>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => setPayingTicket(t)}>Pay Now</button>
                 )}
               </div>
             </div>
           ))
-        }
+        )}
       </div>
+
       {payingTicket && (
         <PaymentModal
           ticket={payingTicket}
@@ -210,33 +215,45 @@ export default function Tickets() {
           onSuccess={() => { setPayingTicket(null); load() }}
         />
       )}
+
       {viewingTicket && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '480px', maxHeight: '85vh', overflowY: 'auto' }}>
+        <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setViewingTicket(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', color: '#1a2b4a' }}>Service Proof</h3>
-              <button onClick={() => setViewingTicket(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: '800', color: 'var(--navy)' }}>Service Proof</h3>
+              <button type="button" onClick={() => setViewingTicket(null)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label="Close">✕</button>
             </div>
             <TicketPhotos ticketId={viewingTicket} />
           </div>
         </div>
       )}
+
       <a
-        href="https://wa.me/919810223963?text=Hi%20CasaCare%2C%20I%20need%20help%20with%20a%20service"
+        href="https://wa.me/919810223963?text=Hi%20CasaCare%2C%20I%20need%20help"
         target="_blank"
         rel="noopener noreferrer"
         style={{
-          position: 'fixed', bottom: '24px', right: '24px',
-          width: '56px', height: '56px',
-          background: '#25D366', borderRadius: '50%',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(37,211,102,0.4)',
-          zIndex: 50, fontSize: '28px', textDecoration: 'none',
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          width: '56px',
+          height: '56px',
+          background: '#25D366',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(37,211,102,0.45)',
+          zIndex: 50,
+          fontSize: '28px',
+          textDecoration: 'none',
           transition: 'transform 0.2s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)' }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)' }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-      >💬</a>
+      >
+        💬
+      </a>
     </div>
   )
 }
@@ -248,11 +265,11 @@ function TicketPhotos({ ticketId }) {
       .then(({ data }) => setPhotos(data || []))
   }, [ticketId])
   return photos.length === 0 ? (
-    <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>No photos yet</p>
+    <p className="text-muted" style={{ textAlign: 'center', padding: '20px' }}>No photos yet</p>
   ) : (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '10px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
       {photos.map(p => (
-        <img key={p.id} src={p.url} alt="proof" style={{ width: '100%', borderRadius: '10px', objectFit: 'cover', height: '150px' }} />
+        <img key={p.id} src={p.url} alt="Proof" style={{ width: '100%', borderRadius: 'var(--r-sm)', objectFit: 'cover', height: '150px' }} />
       ))}
     </div>
   )

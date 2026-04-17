@@ -4,6 +4,14 @@ import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 import { formatDate } from '../utils/date'
 
+const STATUS_BADGE = {
+  open: 'badge-amber',
+  scheduled: 'badge-navy',
+  in_progress: 'badge-navy',
+  closed: 'badge-green',
+  cancelled: 'badge-gray',
+}
+
 export default function AdminDashboard() {
   const { profile } = useAuth()
   const [tickets, setTickets] = useState([])
@@ -87,63 +95,49 @@ export default function AdminDashboard() {
     }
   }
 
+  function statFilterFromLabel(label) {
+    return label.toLowerCase().replace(/\s+/g, '_')
+  }
+
   const filtered = filter === 'all' ? tickets : tickets.filter((t) => t.status === filter)
   const open = tickets.filter((t) => t.status === 'open').length
   const inProgress = tickets.filter((t) => t.status === 'in_progress').length
   const scheduled = tickets.filter((t) => t.status === 'scheduled').length
   const closed = tickets.filter((t) => t.status === 'closed').length
 
-  const statusColors = {
-    open: '#f59e0b',
-    scheduled: '#3b82f6',
-    in_progress: '#8b5cf6',
-    closed: '#10b981',
-    cancelled: '#6b7280',
-  }
-
-  if (!profile) return <div className="loading-screen"><div className="spinner spinner-teal" /></div>
-
-  if (profile.role !== 'admin') {
+  if (!profile) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
-        <h2 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", color: '#1a2b4a' }}>Access Denied</h2>
-        <p style={{ color: '#9ca3af', marginTop: '8px' }}>You need admin privileges to view this page.</p>
+      <div className="loading-screen">
+        <div className="spinner spinner-teal" style={{ width: '32px', height: '32px' }} />
       </div>
     )
   }
 
+  if (profile.role !== 'admin') {
+    return (
+      <div className="empty-state">
+        <span className="empty-icon">🔒</span>
+        <div className="empty-title">Access Denied</div>
+        <p className="empty-desc">You need admin privileges to view this page.</p>
+      </div>
+    )
+  }
+
+  const statCards = [
+    { label: 'Open', value: open, accent: 'var(--amber)', bg: '#fffbeb', border: 'rgba(245, 158, 11, 0.35)' },
+    { label: 'Scheduled', value: scheduled, accent: '#3b82f6', bg: '#eff6ff', border: 'rgba(59, 130, 246, 0.35)' },
+    { label: 'In Progress', value: inProgress, accent: '#8b5cf6', bg: '#f5f3ff', border: 'rgba(139, 92, 246, 0.35)' },
+    { label: 'Closed', value: closed, accent: 'var(--green)', bg: '#f0fdf4', border: 'rgba(16, 185, 129, 0.35)' },
+  ]
+
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '28px',
-        }}
-      >
+    <div className="anim-fade-up">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
         <div>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a2b4a', margin: 0 }}>
-            Admin Control Centre
-          </h1>
-          <p style={{ fontSize: '14px', color: '#9ca3af', marginTop: '4px' }}>
-            Manage all tickets, assignments and field force
-          </p>
+          <h1 className="page-title">Admin Control Centre</h1>
+          <p className="page-subtitle">Tickets, assignments, and field team</p>
         </div>
-        <button
-          type="button"
-          onClick={loadData}
-          style={{
-            padding: '10px 20px',
-            background: '#1D9E75',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}
-        >
+        <button type="button" className="btn btn-primary" onClick={loadData}>
           Refresh
         </button>
       </div>
@@ -151,285 +145,215 @@ export default function AdminDashboard() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4,1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
           gap: '16px',
           marginBottom: '28px',
         }}
       >
-        {[
-          { label: 'Open', value: open, color: '#f59e0b', bg: '#fffbeb' },
-          { label: 'Scheduled', value: scheduled, color: '#3b82f6', bg: '#eff6ff' },
-          { label: 'In Progress', value: inProgress, color: '#8b5cf6', bg: '#f5f3ff' },
-          { label: 'Closed', value: closed, color: '#10b981', bg: '#f0fdf4' },
-        ].map((s) => (
+        {statCards.map((s) => (
           <button
             type="button"
             key={s.label}
-            onClick={() =>
-              setFilter(s.label.toLowerCase().replace(' ', '_'))
-            }
+            onClick={() => setFilter(statFilterFromLabel(s.label))}
+            className="card card-pad card-hover"
             style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '20px',
-              border: `1px solid ${s.color}30`,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
               textAlign: 'left',
+              cursor: 'pointer',
+              border: `1px solid ${s.border}`,
+              background: s.bg,
             }}
           >
-            <div
-              style={{
-                fontSize: '11px',
-                fontWeight: '700',
-                color: s.color,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-              }}
-            >
+            <div style={{ fontSize: '11px', fontWeight: '800', color: s.accent, textTransform: 'uppercase', letterSpacing: '0.07em', fontFamily: 'var(--font-display)' }}>
               {s.label}
             </div>
-            <div style={{ fontSize: '36px', fontWeight: '800', color: '#1f2937', marginTop: '6px' }}>
+            <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--gray-800)', marginTop: '8px', fontFamily: 'var(--font-display)', lineHeight: 1 }}>
               {s.value}
             </div>
           </button>
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {['tickets', 'field_force'].map((tab) => (
-          <button
-            type="button"
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              padding: '9px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              fontWeight: '600',
-              fontSize: '13px',
-              cursor: 'pointer',
-              fontFamily: "'Plus Jakarta Sans',sans-serif",
-              background: activeTab === tab ? '#1D9E75' : '#f3f4f6',
-              color: activeTab === tab ? 'white' : '#4b5563',
-            }}
-          >
-            {tab === 'tickets' ? '🎫 All Tickets' : '👷 Field Force'}
-          </button>
-        ))}
-        {activeTab === 'tickets' &&
-          ['all', 'open', 'scheduled', 'in_progress', 'closed'].map((s) => (
-            <button
-              type="button"
-              key={s}
-              onClick={() => setFilter(s)}
-              style={{
-                padding: '9px 16px',
-                borderRadius: '10px',
-                border: 'none',
-                fontWeight: '600',
-                fontSize: '12px',
-                cursor: 'pointer',
-                fontFamily: "'Plus Jakarta Sans',sans-serif",
-                background: filter === s ? '#1a2b4a' : '#f3f4f6',
-                color: filter === s ? 'white' : '#4b5563',
-              }}
-            >
-              {s.replace('_', ' ')}
-            </button>
-          ))}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <button
+          type="button"
+          className={`btn btn-sm ${activeTab === 'tickets' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setActiveTab('tickets')}
+        >
+          🎫 All Tickets
+        </button>
+        <button
+          type="button"
+          className={`btn btn-sm ${activeTab === 'field_force' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setActiveTab('field_force')}
+        >
+          👷 Field Force
+        </button>
+        {activeTab === 'tickets' && (
+          <>
+            {['all', 'open', 'scheduled', 'in_progress', 'closed'].map((x) => (
+              <button
+                type="button"
+                key={x}
+                className={`btn btn-xs ${filter === x ? 'btn-navy' : 'btn-ghost'}`}
+                onClick={() => setFilter(x)}
+              >
+                {x.replace('_', ' ')}
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       {activeTab === 'tickets' && (
-        <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+        <div className="card" style={{ overflow: 'hidden' }}>
           {loading ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af' }}>Loading tickets...</div>
+            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--gray-400)' }}>Loading tickets…</div>
           ) : filtered.length === 0 ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af' }}>No tickets found</div>
+            <div className="empty-state">
+              <span className="empty-icon">🎫</span>
+              <div className="empty-title">No tickets</div>
+              <p className="empty-desc">No tickets match the current filter.</p>
+            </div>
           ) : (
-            filtered.map((t, i) => (
-              <div
-                key={t.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
-                  gap: '16px',
-                  alignItems: 'center',
-                  padding: '16px 20px',
-                  borderBottom: i < filtered.length - 1 ? '1px solid #f3f4f6' : 'none',
-                  background: i % 2 === 0 ? 'white' : '#fafafa',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: '700', fontSize: '14px', color: '#1f2937', marginBottom: '3px' }}>
-                    {t.title}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-                    👤 {t.customer?.full_name || 'Unknown'} · 📱 {t.customer?.phone || 'N/A'}
-                  </div>
-                  {t.address && (
-                    <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>📍 {t.address}</div>
-                  )}
-                </div>
-
-                <div>
-                  <div style={{ fontSize: '12px', fontWeight: '600', color: '#4b5563' }}>{t.category}</div>
-                  <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
-                    {formatDate(t.created_at)}
-                  </div>
-                </div>
-
-                <div>
-                  <span
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: '99px',
-                      fontSize: '11px',
-                      fontWeight: '700',
-                      background: `${statusColors[t.status] || '#6b7280'}20`,
-                      color: statusColors[t.status] || '#6b7280',
-                    }}
-                  >
-                    {t.status?.replace('_', ' ').toUpperCase()}
-                  </span>
-                </div>
-
-                <div>
-                  <select
-                    value={t.assigned_to || ''}
-                    onChange={(e) => assignTicket(t.id, e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
-                      fontSize: '12px',
-                      fontFamily: "'Plus Jakarta Sans',sans-serif",
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <option value="">Assign to...</option>
-                    {fieldForce.map((ff) => (
-                      <option key={ff.id} value={ff.id}>
-                        {ff.full_name}
-                      </option>
-                    ))}
-                  </select>
-                  {t.assignee && (
-                    <div style={{ fontSize: '11px', color: '#10b981', marginTop: '3px', fontWeight: '600' }}>
-                      ✓ {t.assignee.full_name}
+            <div style={{ overflowX: 'auto' }}>
+              {filtered.map((t, i) => (
+                <div
+                  key={t.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(200px, 2fr) minmax(120px, 1fr) minmax(100px, 0.8fr) minmax(140px, 1fr) minmax(160px, 1.2fr)',
+                    gap: '16px',
+                    alignItems: 'start',
+                    padding: '18px 20px',
+                    borderBottom: '1px solid var(--gray-100)',
+                    background: i % 2 === 0 ? 'var(--surface)' : 'var(--gray-50)',
+                    minWidth: '720px',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: '700', fontSize: '14px', color: 'var(--gray-800)', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>{t.title}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--gray-400)' }}>
+                      👤 {t.customer?.full_name || 'Unknown'} · 📱 {t.customer?.phone || 'N/A'}
                     </div>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {t.has_photos && (
-                    <button
-                      onClick={() => setViewingPhotos(t.id)}
-                      style={{
-                        padding: '5px 12px',
-                        background: '#eff6ff',
-                        color: '#1e40af',
-                        border: '1.5px solid #bfdbfe',
-                        borderRadius: '8px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        fontFamily: "'Plus Jakarta Sans',sans-serif"
-                      }}
+                    {t.address && <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '4px' }}>📍 {t.address}</div>}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--gray-700)' }}>{t.category}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray-400)', marginTop: '4px' }}>{formatDate(t.created_at)}</div>
+                  </div>
+                  <div>
+                    <span className={`badge ${STATUS_BADGE[t.status] || 'badge-gray'}`}>{t.status?.replace('_', ' ')}</span>
+                  </div>
+                  <div>
+                    <select
+                      value={t.assigned_to || ''}
+                      onChange={(e) => assignTicket(t.id, e.target.value)}
+                      className="form-input form-select"
+                      style={{ fontSize: '12px', padding: '8px 10px' }}
                     >
-                      📷 Photos
-                    </button>
-                  )}
-                  {['open', 'scheduled', 'in_progress', 'closed']
-                    .filter((s) => t.status !== s)
-                    .map((s) => (
-                      <button
-                        type="button"
-                        key={s}
-                        onClick={() => updateStatus(t.id, s)}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          fontSize: '11px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          fontFamily: "'Plus Jakarta Sans',sans-serif",
-                          background:
-                            s === 'closed' ? '#f0fdf4' : s === 'in_progress' ? '#f5f3ff' : '#eff6ff',
-                          color:
-                            s === 'closed' ? '#166534' : s === 'in_progress' ? '#6d28d9' : '#1e40af',
-                        }}
-                      >
-                        → {s.replace('_', ' ')}
+                      <option value="">Assign to…</option>
+                      {fieldForce.map((ff) => (
+                        <option key={ff.id} value={ff.id}>{ff.full_name}</option>
+                      ))}
+                    </select>
+                    {t.assignee && (
+                      <div style={{ fontSize: '11px', color: 'var(--teal)', marginTop: '6px', fontWeight: '600' }}>✓ {t.assignee.full_name}</div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
+                    {t.has_photos && (
+                      <button type="button" className="btn btn-ghost btn-xs" onClick={() => setViewingPhotos(t.id)}>
+                        📷 Photos
                       </button>
-                    ))}
+                    )}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {['open', 'scheduled', 'in_progress', 'closed']
+                        .filter((s) => t.status !== s)
+                        .map((s) => (
+                          <button
+                            type="button"
+                            key={s}
+                            className="btn btn-xs btn-secondary"
+                            onClick={() => updateStatus(t.id, s)}
+                          >
+                            → {s.replace('_', ' ')}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       )}
 
       {activeTab === 'field_force' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '16px',
+          }}
+        >
           {fieldForce.length === 0 ? (
-            <div style={{ gridColumn: '1/-1', padding: '48px', textAlign: 'center', color: '#9ca3af' }}>
-              No field force members yet. Register users with the Field Technician role.
+            <div className="card card-pad" style={{ gridColumn: '1 / -1' }}>
+              <div className="empty-state">
+                <span className="empty-icon">👷</span>
+                <div className="empty-title">No field force members</div>
+                <p className="empty-desc">Register users with the Field Technician role.</p>
+              </div>
             </div>
           ) : (
             fieldForce.map((ff) => {
               const activeJobs = tickets.filter(
                 (ticket) => ticket.assigned_to === ff.id && ticket.status !== 'closed',
               ).length
+              const initials = ff.full_name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'FF'
               return (
-                <div
-                  key={ff.id}
-                  style={{
-                    background: 'white',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    border: '1px solid #e5e7eb',
-                  }}
-                >
+                <div key={ff.id} className="card card-pad card-hover">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                     <div
                       style={{
-                        width: '44px',
-                        height: '44px',
+                        width: '48px',
+                        height: '48px',
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg,#1D9E75,#0F6E56)',
+                        background: 'linear-gradient(135deg, var(--teal), var(--teal-dark))',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
                         fontWeight: '800',
                         fontSize: '16px',
+                        fontFamily: 'var(--font-display)',
+                        flexShrink: 0,
                       }}
                     >
-                      {ff.full_name?.charAt(0) || 'T'}
+                      {initials}
                     </div>
-                    <div>
-                      <div style={{ fontWeight: '700', fontSize: '14px', color: '#1f2937' }}>{ff.full_name}</div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{ff.phone || ff.email}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: '700', fontSize: '15px', color: 'var(--gray-800)', fontFamily: 'var(--font-display)' }}>{ff.full_name}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--gray-400)' }}>{ff.phone || ff.email}</div>
                     </div>
                   </div>
                   <div
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      padding: '10px 14px',
-                      background: '#f9fafb',
-                      borderRadius: '10px',
+                      alignItems: 'center',
+                      padding: '12px 14px',
+                      background: 'var(--gray-50)',
+                      borderRadius: 'var(--r-md)',
+                      border: '1px solid var(--gray-100)',
                     }}
                   >
-                    <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '600' }}>Active Jobs</span>
+                    <span style={{ fontSize: '12px', color: 'var(--gray-600)', fontWeight: '600' }}>Active jobs</span>
                     <span
                       style={{
-                        fontSize: '14px',
+                        fontSize: '18px',
                         fontWeight: '800',
-                        color: activeJobs > 0 ? '#F5A623' : '#10b981',
+                        color: activeJobs > 0 ? 'var(--orange)' : 'var(--green)',
+                        fontFamily: 'var(--font-display)',
                       }}
                     >
                       {activeJobs}
@@ -441,6 +365,7 @@ export default function AdminDashboard() {
           )}
         </div>
       )}
+
       {viewingPhotos && <PhotoViewer ticketId={viewingPhotos} onClose={() => setViewingPhotos(null)} />}
     </div>
   )
@@ -459,24 +384,26 @@ function PhotoViewer({ ticketId, onClose }) {
   }, [ticketId])
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}>
-      <div style={{ background: 'white', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}>
+    <div className="modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '560px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', color: '#1a2b4a' }}>Proof of Service Photos</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#9ca3af' }}>✕</button>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: '800', color: 'var(--navy)' }}>Proof of Service Photos</h3>
+          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label="Close">✕</button>
         </div>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>Loading photos...</div>
+          <div style={{ textAlign: 'center', padding: '32px', color: 'var(--gray-400)' }}>Loading photos…</div>
         ) : photos.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>No photos uploaded yet</div>
+          <div className="empty-state" style={{ padding: '24px' }}>
+            <p className="empty-desc">No photos uploaded yet</p>
+          </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
             {photos.map(p => (
-              <div key={p.id} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+              <div key={p.id} style={{ borderRadius: 'var(--r-md)', overflow: 'hidden', border: '1px solid var(--gray-100)' }}>
                 <img src={p.url} alt="Proof" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
-                <div style={{ padding: '8px 10px', background: '#f9fafb' }}>
-                  <div style={{ fontSize: '11px', color: '#6b7280' }}>{new Date(p.created_at).toLocaleString('en-IN')}</div>
-                  {p.caption && <div style={{ fontSize: '12px', color: '#1f2937', fontWeight: '500', marginTop: '2px' }}>{p.caption}</div>}
+                <div style={{ padding: '8px 10px', background: 'var(--gray-50)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--gray-500)' }}>{new Date(p.created_at).toLocaleString('en-IN')}</div>
+                  {p.caption && <div style={{ fontSize: '12px', color: 'var(--gray-800)', fontWeight: '500', marginTop: '4px' }}>{p.caption}</div>}
                 </div>
               </div>
             ))}

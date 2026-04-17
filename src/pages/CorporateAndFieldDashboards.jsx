@@ -98,6 +98,7 @@ export function FieldForceDashboard() {
   const [showNotifs, setShowNotifs] = useState(false)
   const [activeJob, setActiveJob] = useState(null)
   const [showPhotoUpload, setShowPhotoUpload] = useState(false)
+  const [heroImgOk, setHeroImgOk] = useState(true)
 
   async function load() {
     const { data } = await supabase.from('tickets').select('*').eq('assigned_to', profile?.id).order('scheduled_at', { ascending: true })
@@ -130,127 +131,224 @@ export function FieldForceDashboard() {
     setShowNotifs(false)
   }
 
+  async function startJob(job) {
+    const { error } = await supabase.from('tickets').update({ status: 'in_progress', updated_at: new Date().toISOString() }).eq('id', job.id)
+    if (error) toast.error(error.message)
+    else {
+      toast.success('Job started')
+      load()
+    }
+  }
+
+  function openMaps(job) {
+    const q = job.address || job.title || ''
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer')
+  }
+
   const today = jobs.filter(j => isSameDay(j.scheduled_at))
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', position: 'relative' }}>
-        <button onClick={() => setShowNotifs(!showNotifs)} style={{
-          position: 'relative', background: 'white', border: '1.5px solid #e5e7eb',
-          borderRadius: '12px', padding: '10px 16px', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: '8px',
-          fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '600', fontSize: '13px'
-        }}>
-          🔔 Notifications
-          {notifications.length > 0 && (
-            <span style={{
-              background: '#ef4444', color: 'white', borderRadius: '99px',
-              padding: '2px 7px', fontSize: '11px', fontWeight: '800'
-            }}>{notifications.length}</span>
+    <div className="anim-fade-up" style={{ position: 'relative' }}>
+      {/* Hero + bell */}
+      <div style={{ position: 'relative', marginBottom: '24px' }}>
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 'var(--r-xl)',
+            overflow: 'hidden',
+            minHeight: '200px',
+            background: 'linear-gradient(125deg, #0a1628 0%, var(--navy) 40%, var(--teal-dark) 100%)',
+            boxShadow: 'var(--shadow-md)',
+          }}
+        >
+          {heroImgOk && (
+            <img
+              src="/brand/tech-male.jpg"
+              alt=""
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                opacity: 0.35,
+              }}
+              onError={() => setHeroImgOk(false)}
+            />
           )}
-        </button>
-        {showNotifs && (
-          <div style={{
-            position: 'absolute', top: '48px', right: 0, width: '320px',
-            background: 'white', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-            border: '1px solid #e5e7eb', zIndex: 50, overflow: 'hidden'
-          }}>
-            <div style={{ padding: '14px 16px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: '700', fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: '14px' }}>New Jobs</span>
+          <div
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              zIndex: 3,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowNotifs(!showNotifs)}
+              className="btn btn-secondary btn-sm"
+              style={{
+                position: 'relative',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              🔔
               {notifications.length > 0 && (
-                <button onClick={markAllRead} style={{ background: 'none', border: 'none', color: '#1D9E75', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Mark all read</button>
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
+                    background: '#ef4444',
+                    color: 'white',
+                    borderRadius: '99px',
+                    minWidth: '20px',
+                    height: '20px',
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1,
+                  }}
+                >
+                  {notifications.length > 9 ? '9+' : notifications.length}
+                </span>
               )}
-            </div>
-            {notifications.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>No new notifications</div>
-            ) : notifications.map(n => (
-              <div key={n.id} style={{ padding: '12px 16px', borderBottom: '1px solid #f9fafb', background: '#f0fdf4' }}>
-                <div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>{n.message}</div>
-                <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>{new Date(n.created_at).toLocaleString('en-IN')}</div>
+            </button>
+            {showNotifs && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '48px',
+                  right: 0,
+                  width: 'min(320px, 92vw)',
+                  background: 'var(--surface)',
+                  borderRadius: 'var(--r-lg)',
+                  boxShadow: 'var(--shadow-xl)',
+                  border: '1px solid var(--gray-100)',
+                  zIndex: 50,
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: '700', fontFamily: 'var(--font-display)', fontSize: '14px' }}>Notifications</span>
+                  {notifications.length > 0 && (
+                    <button type="button" onClick={markAllRead} className="btn btn-ghost btn-xs" style={{ border: 'none' }}>Mark all read</button>
+                  )}
+                </div>
+                {notifications.length === 0 ? (
+                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--gray-400)', fontSize: '13px' }}>No new notifications</div>
+                ) : notifications.map(n => (
+                  <div key={n.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--gray-50)', background: 'var(--teal-xlight)' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--gray-800)', fontWeight: '500' }}>{n.message}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--gray-400)', marginTop: '4px' }}>{new Date(n.created_at).toLocaleString('en-IN')}</div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+
+          <div style={{ position: 'relative', zIndex: 2, padding: '28px 24px 28px 24px', maxWidth: '720px' }}>
+            <h1 className="page-title" style={{ color: 'white', fontSize: 'clamp(22px, 4vw, 28px)', marginBottom: '8px' }}>My Jobs 🔧</h1>
+            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+              Today: <strong>{today.length}</strong> job{today.length !== 1 ? 's' : ''} scheduled
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="page-header">
-        <h1 className="page-title">My Jobs 🔧</h1>
-        <p className="page-subtitle">Today: {today.length} job{today.length !== 1 ? 's' : ''} scheduled</p>
-      </div>
-
-      <div className="stat-grid">
-        <div className="stat-card"><div className="stat-label">Today's jobs</div><div className="stat-value">{today.length}</div><div className="stat-sub">Scheduled</div></div>
+      <div className="stat-grid d1">
+        <div className="stat-card"><div className="stat-label">Today&apos;s jobs</div><div className="stat-value">{today.length}</div><div className="stat-sub">Scheduled</div></div>
         <div className="stat-card"><div className="stat-label">In progress</div><div className="stat-value">{jobs.filter(j => j.status === 'in_progress').length}</div><div className="stat-sub">Active</div></div>
         <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value">{jobs.filter(j => j.status === 'closed').length}</div><div className="stat-sub">All time</div></div>
       </div>
 
-      <div className="card card-pad" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: '600' }}>Scan an asset</h2>
-        </div>
-        <div style={{ background: 'var(--gray-50)', border: '2px dashed var(--gray-200)', borderRadius: 'var(--radius)', padding: '32px', textAlign: 'center' }}>
+      <div className="card card-pad d2" style={{ marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '17px', fontWeight: '700', marginBottom: '16px', fontFamily: 'var(--font-display)', color: 'var(--gray-800)' }}>Scan an asset</h2>
+        <div
+          style={{
+            background: 'var(--gray-50)',
+            border: '2px dashed var(--gray-200)',
+            borderRadius: 'var(--r-lg)',
+            padding: '32px',
+            textAlign: 'center',
+          }}
+        >
           <div style={{ fontSize: '40px', marginBottom: '12px' }}>📷</div>
-          <p style={{ fontSize: '14px', color: 'var(--gray-600)', marginBottom: '16px' }}>Scan the QR code on the asset to pull up service history and raise a ticket instantly</p>
-          <button className="btn btn-primary" onClick={() => alert('QR scanner opens camera — coming in mobile app')}>Open QR Scanner</button>
+          <p style={{ fontSize: '14px', color: 'var(--gray-600)', marginBottom: '16px', maxWidth: '420px', margin: '0 auto 16px' }}>
+            Scan the QR code on the asset to pull up service history and raise a ticket instantly
+          </p>
+          <button type="button" className="btn btn-primary" onClick={() => alert('QR scanner opens camera — coming in mobile app')}>Open QR Scanner</button>
         </div>
       </div>
 
-      <div className="card card-pad">
-        <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Assigned jobs</h2>
-        {loading ? <div style={{ display: 'flex', justifyContent: 'center', padding: '32px' }}><div className="spinner" /></div>
-          : jobs.length === 0
-          ? <div style={{ textAlign: 'center', padding: '32px', color: 'var(--gray-400)', fontSize: '14px' }}>No jobs assigned to you yet.</div>
-          : jobs.map(j => (
-            <div key={j.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--gray-100)' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: '500' }}>{j.title}</div>
-                <div style={{ fontSize: '12px', color: 'var(--gray-400)', marginTop: '2px' }}>{j.address || 'Address not set'} · {j.scheduled_at ? formatDateTime(j.scheduled_at, 'en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'Unscheduled'}</div>
+      <div className="card card-pad d3">
+        <h2 style={{ fontSize: '17px', fontWeight: '700', marginBottom: '16px', fontFamily: 'var(--font-display)', color: 'var(--gray-800)' }}>Assigned jobs</h2>
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '32px' }}><div className="spinner spinner-teal" style={{ width: '28px', height: '28px' }} /></div>
+        ) : jobs.length === 0 ? (
+          <div className="empty-state">
+            <span className="empty-icon">🔧</span>
+            <div className="empty-title">No jobs assigned</div>
+            <p className="empty-desc">New assignments will appear here when dispatch assigns you.</p>
+          </div>
+        ) : (
+          jobs.map(j => (
+            <div
+              key={j.id}
+              style={{
+                padding: '18px 0',
+                borderBottom: '1px solid var(--gray-100)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: '16px',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--gray-800)', fontFamily: 'var(--font-display)' }}>{j.title}</div>
+                <div style={{ fontSize: '13px', color: 'var(--gray-500)', marginTop: '6px' }}>{j.address || 'Address not set'}</div>
+                <div style={{ fontSize: '12px', color: 'var(--teal)', fontWeight: '600', marginTop: '8px' }}>
+                  {j.scheduled_at ? formatDateTime(j.scheduled_at, 'en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'Unscheduled'}
+                </div>
+                <span className={`badge ${j.status === 'open' ? 'badge-amber' : j.status === 'in_progress' ? 'badge-navy' : j.status === 'closed' ? 'badge-green' : 'badge-gray'}`} style={{ marginTop: '10px' }}>
+                  {j.status?.replace('_', ' ')}
+                </span>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button className="btn btn-secondary btn-sm">Navigate</button>
-                <button className="btn btn-primary btn-sm">Start job</button>
-                <button
-                  onClick={() => { setActiveJob(j); setShowPhotoUpload(true) }}
-                  style={{
-                    padding: '7px 14px',
-                    background: '#f0fdf4',
-                    color: '#166534',
-                    border: '1.5px solid #bbf7d0',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    fontFamily: "'Plus Jakarta Sans',sans-serif"
-                  }}
-                >
-                  📷 Upload Proof
-                </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={() => openMaps(j)}>Navigate</button>
+                {j.status !== 'in_progress' && j.status !== 'closed' && (
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => startJob(j)}>Start Job</button>
+                )}
+                {j.status === 'in_progress' && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    style={{ color: '#166534', borderColor: '#bbf7d0', background: '#f0fdf4' }}
+                    onClick={() => { setActiveJob(j); setShowPhotoUpload(true) }}
+                  >
+                    📷 Upload Proof
+                  </button>
+                )}
               </div>
             </div>
           ))
-        }
+        )}
       </div>
+
       {showPhotoUpload && activeJob && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 100, padding: '20px'
-        }}>
-          <div style={{
-            background: 'white', borderRadius: '20px', padding: '24px',
-            width: '100%', maxWidth: '480px',
-            maxHeight: '90vh', overflowY: 'auto'
-          }}>
+        <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowPhotoUpload(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: '800', fontSize: '16px', color: '#1a2b4a' }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '17px', color: 'var(--navy)' }}>
                 Upload Proof of Service
               </h3>
-              <button onClick={() => setShowPhotoUpload(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#9ca3af' }}>✕</button>
+              <button type="button" onClick={() => setShowPhotoUpload(false)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label="Close">✕</button>
             </div>
-            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
-              Job: {activeJob.title}
-            </p>
+            <p style={{ fontSize: '13px', color: 'var(--gray-500)', marginBottom: '16px' }}>Job: {activeJob.title}</p>
             <PhotoUpload
               ticketId={activeJob.id}
               onUploadComplete={() => {
@@ -260,6 +358,9 @@ export function FieldForceDashboard() {
               }}
             />
             <button
+              type="button"
+              className="btn btn-primary btn-full"
+              style={{ marginTop: '16px' }}
               onClick={async () => {
                 const { error } = await supabase.from('tickets')
                   .update({ status: 'closed', closed_at: new Date().toISOString() })
@@ -268,14 +369,7 @@ export function FieldForceDashboard() {
                   toast.success('Job marked as complete!')
                   setShowPhotoUpload(false)
                   load()
-                }
-              }}
-              style={{
-                width: '100%', marginTop: '16px', padding: '13px',
-                background: 'linear-gradient(135deg, #1D9E75, #0F6E56)',
-                color: 'white', border: 'none', borderRadius: '12px',
-                fontWeight: '700', fontSize: '14px', cursor: 'pointer',
-                fontFamily: "'Plus Jakarta Sans',sans-serif"
+                } else toast.error(error.message)
               }}
             >
               Mark Job Complete ✓

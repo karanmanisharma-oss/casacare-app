@@ -23,17 +23,21 @@ function AppLayout() {
         flex: 1,
         padding: '32px',
         overflowY: 'auto',
-        background: 'transparent',
+        background: 'var(--bg)',
         minHeight: '100vh',
       }} className="main-content">
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{
+          maxWidth: '1100px',
+          margin: '0 auto',
+          animation: 'fadeIn 0.3s ease',
+        }}>
           <Outlet />
         </div>
       </main>
       <style>{`
         @media (max-width: 768px) {
           .main-content {
-            padding: 72px 16px 24px 16px !important;
+            padding: 70px 16px 24px 16px !important;
           }
         }
       `}</style>
