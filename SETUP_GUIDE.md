@@ -3,15 +3,15 @@
 
 ## ✅ STEP 1 — Set up the database in Supabase (5 mins)
 
-1. Go to https://supabase.com and log into your account
-2. Open your project
-3. Click **SQL Editor** in the left menu
-4. Click **New query** (top right)
-5. Open the file `SUPABASE_SETUP.sql` from this folder
-6. Copy ALL the text inside it
-7. Paste it into the SQL Editor
-8. Click the **Run** button (green button, bottom right)
-9. You should see "Success. No rows returned"
+**Recommended — Supabase CLI (no copy-paste):** SQL lives in `supabase/migrations/`. From the project root:
+
+1. `npm install` (installs the CLI as a dev dependency)
+2. `npm run db:login` — completes in the browser once
+3. `npm run db:link` — uses project ref `tmiapgccvjdhsflcvotg` (enter your DB password when prompted)
+4. `npm run db:push` — applies all migrations to the linked project  
+   Use `npm run db:push:dry` first to preview.
+
+**Manual fallback:** In Supabase → SQL Editor, run each file from `supabase/migrations/` in timestamp order (oldest first), or copy from the first migration `20250415000001_supabase_setup.sql`.
 
 ## ✅ STEP 2 — Get your Supabase keys (2 mins)
 

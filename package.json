@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:login": "supabase login",
+    "db:link": "supabase link --project-ref tmiapgccvjdhsflcvotg",
+    "db:push": "supabase db push",
+    "db:push:dry": "supabase db push --dry-run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1031.0",
@@ -23,6 +27,7 @@
   "devDependencies": {
     "@types/react": "^18.2.55",
     "@vitejs/plugin-react": "^4.2.1",
+    "supabase": "^2.92.1",
     "vite": "^5.1.0"
   }
 }
