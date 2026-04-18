@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { formatDate, formatDateTime, isSameDay } from '../utils/date'
@@ -111,16 +111,49 @@ export function FieldForceDashboard() {
     load()
   }, [profile])
 
-  useEffect(() => {
+  const loadNotifications = useCallback(async () => {
     if (!profile?.id) return
-    supabase
+    const { data } = await supabase
       .from('notifications')
       .select('*')
       .eq('user_id', profile.id)
       .eq('read', false)
       .order('created_at', { ascending: false })
-      .then(({ data }) => setNotifications(data || []))
-  }, [profile])
+    setNotifications(data || [])
+  }, [profile?.id])
+
+  useEffect(() => {
+    loadNotifications()
+  }, [loadNotifications])
+
+  /** Realtime bell: enable “notifications” table in Supabase → Database → Replication if this does not fire. */
+  useEffect(() => {
+    if (!profile?.id) return
+    const ch = supabase
+      .channel(`ff-notif-${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${profile.id}`,
+        },
+        (payload) => {
+          const row = payload.new
+          if (row?.read) return
+          setNotifications((prev) => {
+            if (prev.some((n) => n.id === row.id)) return prev
+            return [row, ...prev]
+          })
+          toast.success('New job assigned — check My Jobs')
+        },
+      )
+      .subscribe()
+    return () => {
+      supabase.removeChannel(ch)
+    }
+  }, [profile?.id])
 
   async function markAllRead() {
     await supabase

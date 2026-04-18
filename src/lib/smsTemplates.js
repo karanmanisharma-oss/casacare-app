@@ -2,6 +2,10 @@
 const APP = 'https://casacare-app.vercel.app'
 
 export const smsTemplates = {
+  /** When admin assigns a job (mirrors Edge Function body; keep in sync). */
+  technician_job_assigned: (ticketId, title, whenLine) =>
+    `Casa Care: New job — ${title}. ${whenLine}. Open ${APP}/my-jobs · Help 9810223963`,
+
   booking_confirmed: (ticketId, service, date, time) =>
     `Casa Care: Booking confirmed! ${service} on ${date} at ${time}. Ref #${String(ticketId).replace(/-/g, '').slice(0, 8)}. ${APP}/tickets Help: 9810223963`,
 

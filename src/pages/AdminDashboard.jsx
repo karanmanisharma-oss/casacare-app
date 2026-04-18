@@ -67,21 +67,24 @@ export default function AdminDashboard() {
       return
     }
 
-    await supabase
-      .from('notifications')
-      .insert({
-        user_id: fieldForceId,
-        ticket_id: ticketId,
-        message: 'You have been assigned a new job. Please check your jobs list.',
-        type: 'job_assigned',
-        read: false,
-        created_at: new Date().toISOString(),
-      })
-      .then(({ error: notifError }) => {
-        if (notifError) console.log('Notification table not yet created, skipping')
-      })
-
-    toast.success('Ticket assigned! Field force notified.')
+    const { error: fnErr, data: fnData } = await supabase.functions.invoke('notify-technician-assignment', {
+      body: { ticket_id: ticketId },
+    })
+    if (fnErr) {
+      toast.error(fnErr.message || 'Assignment saved, but technician notification failed. Try re-assigning or check Edge Function logs.')
+      loadData()
+      return
+    }
+    const sms = fnData?.sms
+    if (sms?.status === 'skipped' && sms?.detail === 'no_phone') {
+      toast.success('Ticket assigned. Add technician phone in their profile to enable SMS alerts.')
+    } else if (sms?.status === 'sent') {
+      toast.success('Ticket assigned — technician notified (app + SMS).')
+    } else if (sms?.status === 'failed') {
+      toast.success('Ticket assigned — in-app alert sent. SMS failed (check MSG91 secrets / phone).')
+    } else {
+      toast.success('Ticket assigned — technician notified in-app. SMS sends when MSG91 is configured.')
+    }
     loadData()
   }
 
