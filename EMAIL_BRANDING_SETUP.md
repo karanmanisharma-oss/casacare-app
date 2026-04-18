@@ -13,10 +13,10 @@ This app is a **Vite + React** SPA. Auth emails are sent by **Supabase Auth**, n
 1. Create a SendGrid account and complete sender verification (single sender or domain authentication).
 2. Create an API key (for SMTP password).
 3. SMTP settings Supabase will use:
-   - **Host:** `smtp.sendgrid.net`
-   - **Port:** `587` (TLS) or `465` (SSL)
-   - **Username:** `apikey`
-   - **Password:** your SendGrid API key (the `SG.` secret)
+  - **Host:** `smtp.sendgrid.net`
+  - **Port:** `587` (TLS) or `465` (SSL)
+  - **Username:** `apikey`
+  - **Password:** your SendGrid API key (the `SG.` secret)
 
 ## 2. Supabase Dashboard
 
@@ -28,7 +28,7 @@ This app is a **Vite + React** SPA. Auth emails are sent by **Supabase Auth**, n
 
 - Enable **Custom SMTP**
 - Enter host, port, user `apikey`, password = SendGrid API key
-- **Sender email / name:** use a verified address and a **customer-facing name** (e.g. `support@casacare.in`, **`CasaCare`**). If you leave the default, inboxes may still show **“Supabase Auth”** as the sender display name until SMTP + name are set correctly.
+- **Sender email / name:** use a verified address and a **customer-facing name** (e.g. `support@casacare.in`, **CasaCare**). If you leave the default, inboxes may still show **“Supabase Auth”** as the sender display name until SMTP + name are set correctly.
 
 **Authentication → URL Configuration**
 
@@ -45,10 +45,12 @@ This app is a **Vite + React** SPA. Auth emails are sent by **Supabase Auth**, n
 
 In **Authentication → Email Templates**, set **subjects** to CasaCare-style text, e.g.:
 
-| Template        | Suggested subject                       |
-|----------------|-----------------------------------------|
-| Confirm signup | `Confirm your CasaCare email`           |
-| Reset password | `Reset your CasaCare password`          |
+
+| Template       | Suggested subject              |
+| -------------- | ------------------------------ |
+| Confirm signup | `Confirm your CasaCare email`  |
+| Reset password | `Reset your CasaCare password` |
+
 
 Copy the HTML from:
 
