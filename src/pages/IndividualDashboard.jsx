@@ -15,107 +15,87 @@ const SERVICES = [
   { icon: '🐾', label: 'Pet Care', category: 'pet', sub: 'Boarding · Grooming' },
 ]
 
-const QUICK_PILLS = [
-  { icon: '⚡', label: 'Electrician' },
-  { icon: '🔧', label: 'Plumbing' },
-  { icon: '❄️', label: 'AC Repair' },
-]
-
 export default function IndividualDashboard() {
   const { profile } = useAuth()
   const navigate = useNavigate()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
-  const [heroImgOk, setHeroImgOk] = useState(true)
 
   useEffect(() => {
     supabase.from('tickets').select('*').eq('user_id', profile?.id).order('created_at', { ascending: false }).limit(5)
       .then(({ data }) => { setTickets(data || []); setLoading(false) })
   }, [profile])
 
-  const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
-  const firstName = profile?.full_name?.split(' ')[0] || 'there'
+  useEffect(() => {
+    const h = new Date().getHours()
+    const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
+    const name = profile?.full_name?.split(' ')[0] || ''
+    const el = document.getElementById('hero-greet')
+    if (el) el.textContent = `${g}${name ? ', ' + name : ''}! 👋`
+  }, [profile])
 
   return (
     <div className="anim-fade-up">
       {/* Hero */}
-      <div
-        style={{
-          position: 'relative',
-          borderRadius: 'var(--r-xl)',
-          overflow: 'hidden',
-          marginBottom: '28px',
-          minHeight: '220px',
-          background: 'linear-gradient(135deg, var(--navy) 0%, #0d2137 45%, var(--teal-dark) 100%)',
-          boxShadow: 'var(--shadow-md)',
-        }}
-      >
-        {heroImgOk && (
-          <img
-            src="/brand/tech-male.jpg"
-            alt=""
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: 'min(48%, 380px)',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'top center',
-              opacity: 0.95,
-            }}
-            onError={() => setHeroImgOk(false)}
-          />
-        )}
-        <div
+      <div style={{
+        borderRadius:'24px', overflow:'hidden',
+        marginBottom:'28px', position:'relative', minHeight:'200px',
+        background:'linear-gradient(135deg, #1a2b4a 0%, #0F6E56 100%)',
+      }}>
+        <img
+          src="/brand/tech-male.jpg"
+          alt=""
           style={{
-            position: 'relative',
-            zIndex: 1,
-            padding: '28px 32px',
-            maxWidth: heroImgOk ? '58%' : '100%',
+            position:'absolute', right:0, top:0, bottom:0,
+            width:'45%', height:'100%',
+            objectFit:'cover', objectPosition:'center top',
+            opacity:0.55,
+            maskImage:'linear-gradient(to left, black 40%, transparent 100%)',
+            WebkitMaskImage:'linear-gradient(to left, black 40%, transparent 100%)'
           }}
-        >
-          <p style={{
-            margin: '0 0 8px',
-            fontSize: '14px',
-            color: 'rgba(255,255,255,0.85)',
-            fontWeight: '600',
-            fontFamily: 'var(--font-display)',
-          }}>
-            {greeting}, {firstName}! 👋
-          </p>
-          <h1 style={{
-            margin: '0 0 10px',
-            fontSize: 'clamp(22px, 4vw, 28px)',
-            fontWeight: '800',
-            fontFamily: 'var(--font-display)',
-            color: 'white',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.2,
-          }}>
+          onError={e => { e.target.style.display='none' }}
+        />
+        <div style={{
+          position:'absolute', inset:0,
+          background:'linear-gradient(90deg, rgba(26,43,74,0.92) 40%, rgba(26,43,74,0.1) 100%)'
+        }}/>
+        <div style={{ position:'relative', zIndex:1, padding:'32px', color:'white' }}>
+          <img
+            src="/brand/logo.jpg"
+            alt="CasaCare"
+            style={{
+              width:'42px', height:'42px', objectFit:'contain',
+              borderRadius:'10px', background:'rgba(255,255,255,0.15)',
+              padding:'5px', marginBottom:'14px'
+            }}
+            onError={e => { e.target.style.display='none' }}
+          />
+          <h2 id="hero-greet" style={{
+            fontSize:'26px', fontWeight:'800',
+            fontFamily:"'Plus Jakarta Sans',sans-serif",
+            marginBottom:'6px', letterSpacing:'-0.02em'
+          }}>Good morning! 👋</h2>
+          <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.8)', marginBottom:'20px' }}>
             What service do you need today?
-          </h1>
-          <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
-            Home. Health. Happiness.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '18px' }}>
-            {QUICK_PILLS.map((p) => (
-              <button
-                key={p.label}
-                type="button"
+          <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+            {['⚡ Electrician','🔧 Plumbing','❄️ AC Repair'].map(s => (
+              <span
+                key={s}
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate('/book')}
-                className="btn btn-sm"
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate('/book') }}
                 style={{
-                  background: 'rgba(255,255,255,0.14)',
-                  color: 'white',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  backdropFilter: 'blur(8px)',
+                  padding:'7px 16px',
+                  background:'rgba(255,255,255,0.15)',
+                  borderRadius:'99px', color:'white',
+                  fontSize:'12px', fontWeight:'600',
+                  backdropFilter:'blur(8px)',
+                  border:'1px solid rgba(255,255,255,0.2)',
+                  cursor:'pointer'
                 }}
-              >
-                {p.icon} {p.label}
-              </button>
+              >{s}</span>
             ))}
           </div>
         </div>

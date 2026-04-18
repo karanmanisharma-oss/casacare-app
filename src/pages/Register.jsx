@@ -42,7 +42,20 @@ export default function Register() {
       }}>
         <div style={{ position:'absolute', width:260, height:260, borderRadius:'50%', background:'rgba(29,158,117,0.08)', top:-80, right:-80, animation:'float 7s ease-in-out infinite' }}/>
         <div style={{ position:'relative', zIndex:1, color:'white', maxWidth:'360px' }}>
-          <div style={{ fontSize:'52px', marginBottom:'20px' }}>🏠</div>
+          <img
+            src="/brand/logo.jpg"
+            alt="CasaCare"
+            style={{
+              width:'64px', height:'64px',
+              objectFit:'contain',
+              marginBottom:'20px',
+              borderRadius:'16px',
+              background:'rgba(255,255,255,0.1)',
+              padding:'6px',
+              border:'1px solid rgba(255,255,255,0.15)'
+            }}
+            onError={e => { e.target.style.display='none' }}
+          />
           <h1 style={{ fontSize:'38px', fontWeight:'800', fontFamily:'var(--font-display)', marginBottom:'16px', letterSpacing:'-0.03em' }}>Join CasaCare</h1>
           <p style={{ color:'rgba(255,255,255,0.65)', fontSize:'15px', lineHeight:'1.7', marginBottom:'36px' }}>
             India's most trusted platform for property & asset management

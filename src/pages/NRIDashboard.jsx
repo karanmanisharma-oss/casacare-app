@@ -10,7 +10,6 @@ export default function NRIDashboard() {
   const [properties, setProperties] = useState([])
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
-  const [heroImgOk, setHeroImgOk] = useState(true)
 
   useEffect(() => {
     Promise.all([
@@ -29,39 +28,34 @@ export default function NRIDashboard() {
 
   return (
     <div className="anim-fade-up">
-      <div
-        style={{
-          position: 'relative',
-          borderRadius: 'var(--r-xl)',
-          overflow: 'hidden',
-          marginBottom: '28px',
-          minHeight: '200px',
-          background: 'linear-gradient(135deg, var(--navy) 0%, #142a4a 50%, var(--teal-dark) 100%)',
-          boxShadow: 'var(--shadow-md)',
-        }}
-      >
-        {heroImgOk && (
-          <img
-            src="/brand/nri-care.jpg"
-            alt=""
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: 'min(52%, 420px)',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-            onError={() => setHeroImgOk(false)}
-          />
-        )}
-        <div style={{ position: 'relative', zIndex: 1, padding: '32px', maxWidth: heroImgOk ? '58%' : '100%' }}>
-          <h1 className="page-title" style={{ color: 'white', fontSize: 'clamp(22px, 3.5vw, 28px)', marginBottom: '8px' }}>
-            Property Overview 🏠
-          </h1>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.78)', lineHeight: 1.6, maxWidth: '420px' }}>
+      <div style={{
+        borderRadius:'24px', overflow:'hidden',
+        marginBottom:'28px', position:'relative', minHeight:'180px',
+        background:'linear-gradient(135deg, #1a2b4a 0%, #1D9E75 100%)',
+      }}>
+        <img
+          src="/brand/nri-care.jpg"
+          alt=""
+          style={{
+            position:'absolute', right:0, top:0,
+            width:'42%', height:'100%',
+            objectFit:'cover', opacity:0.5,
+            maskImage:'linear-gradient(to left, black 50%, transparent 100%)',
+            WebkitMaskImage:'linear-gradient(to left, black 50%, transparent 100%)'
+          }}
+          onError={e => { e.target.style.display='none' }}
+        />
+        <div style={{
+          position:'absolute', inset:0,
+          background:'linear-gradient(90deg, rgba(26,43,74,0.93) 50%, transparent 100%)'
+        }}/>
+        <div style={{ position:'relative', zIndex:1, padding:'32px', color:'white' }}>
+          <h2 style={{
+            fontSize:'24px', fontWeight:'800',
+            fontFamily:"'Plus Jakarta Sans',sans-serif",
+            marginBottom:'6px'
+          }}>Property Overview 🏠</h2>
+          <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.7)' }}>
             Your properties are being watched over — 24×7
           </p>
         </div>
