@@ -1,9 +1,15 @@
 {
-  // Cloudflare Workers deploy config (static assets).
-  // Required so `wrangler versions upload` knows what to upload.
+  // Workers Static Assets — SPA (Vite/React Router). No `main` script required.
+  // https://developers.cloudflare.com/workers/static-assets/
   "name": "casacare-app",
   "compatibility_date": "2026-04-18",
+  // Run before deploy/upload so `./dist` exists even if CI only runs Wrangler.
+  "build": {
+    "command": "npm run build"
+  },
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Deep links like /tickets must serve index.html (client-side router).
+    "not_found_handling": "single-page-application"
   }
 }
