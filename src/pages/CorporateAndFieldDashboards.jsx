@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { formatDate, formatDateTime, isSameDay } from '../utils/date'
 import toast from 'react-hot-toast'
 import PhotoUpload from '../components/shared/PhotoUpload'
+import { notifyBookingLifecycle } from '../lib/bookingLifecycleNotify'
 
 export function CorporateDashboard() {
   const { profile } = useAuth()
@@ -366,6 +367,7 @@ export function FieldForceDashboard() {
                   .eq('id', activeJob.id)
                 if (!error) {
                   toast.success('Job marked as complete!')
+                  notifyBookingLifecycle(activeJob.id, 'service_completed').catch(() => {})
                   setShowPhotoUpload(false)
                   load()
                 } else toast.error(error.message)

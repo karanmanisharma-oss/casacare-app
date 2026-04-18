@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
+import { notifyBookingLifecycle } from '../../lib/bookingLifecycleNotify'
 
 const GPAY_UPI_ID = 'casacare@okicici'
 const GPAY_NAME = 'CasaCare Services'
@@ -31,6 +32,7 @@ export default function PaymentModal({ ticket, amount, onClose, onSuccess }) {
     toast.success('Payment confirmed!')
     onSuccess()
     onClose()
+    notifyBookingLifecycle(ticket.id, 'booking_confirmed').catch(() => {})
   }
 
   return (
