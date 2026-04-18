@@ -28,16 +28,18 @@ This app is a **Vite + React** SPA. Auth emails are sent by **Supabase Auth**, n
 
 - Enable **Custom SMTP**
 - Enter host, port, user `apikey`, password = SendGrid API key
-- **Sender email / name:** your verified address (e.g. `support@casacare.in`, `CasaCare`)
+- **Sender email / name:** use a verified address and a **customer-facing name** (e.g. `support@casacare.in`, **`CasaCare`**). If you leave the default, inboxes may still show **“Supabase Auth”** as the sender display name until SMTP + name are set correctly.
 
 **Authentication → URL Configuration**
 
-- **Site URL:** `https://casacare-app.vercel.app`
-- **Redirect URLs:** include at least:
+- **Site URL:** `https://casacare-app.vercel.app` (must be your real app URL — **not** `http://localhost:3000`, or confirmation links opened on a phone will fail: the phone tries to reach *its own* localhost).
+- **Redirect URLs:** add wildcard coverage so PKCE redirects always match, e.g.:
+  - `https://casacare-app.vercel.app/**`
+  - `http://localhost:5173/**` (Vite; adjust port if yours differs)
+  - `http://127.0.0.1:5173/**`
+  And explicitly if you prefer lists:
   - `https://casacare-app.vercel.app/verify`
   - `https://casacare-app.vercel.app/reset-password`
-  - `http://localhost:5173/verify` (local dev, adjust port if needed)
-  - `http://localhost:5173/reset-password`
 
 ## 3. Email templates (subjects + bodies)
 
@@ -58,9 +60,10 @@ Supabase replaces `{{ .ConfirmationURL }}`, `{{ .Email }}`, etc. (see [Supabase 
 
 ## 4. App behaviour (this repo)
 
-- New signups use `emailRedirectTo: …/verify` (`src/hooks/useAuth.jsx`).
+- New signups use `emailRedirectTo: …/verify` via `getAuthSiteOrigin()` (`src/lib/authSiteUrl.js` + `src/hooks/useAuth.jsx`). **Production builds** use `https://casacare-app.vercel.app` so emailed links work on any device; local dev uses the current origin (e.g. `http://localhost:5173`).
+- If the project requires **email confirmation**, users see an on-screen “check your email” step with **Resend** (`Register.jsx`, `Login.jsx`, `EmailVerificationBanner.jsx`).
 - Route **`/verify`** (`src/pages/VerifyEmail.jsx`) completes the session and redirects to `/dashboard`.
-- Password reset emails should redirect to **`/reset-password`** (`Login.jsx` uses the current origin).
+- Password reset emails redirect to **`/reset-password`** using the same site origin helper (`Login.jsx`).
 
 ## 5. Why not `@sendgrid/client` in the frontend?
 

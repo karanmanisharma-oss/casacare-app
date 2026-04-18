@@ -11,6 +11,7 @@ import HealthCheck from './pages/HealthCheck'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
 import { useSessionGuard } from './hooks/useSessionGuard'
+import EmailVerificationBanner from './components/shared/EmailVerificationBanner'
 
 function AppLayout() {
   const { user, loading } = useAuth()
@@ -32,6 +33,7 @@ function AppLayout() {
           margin: '0 auto',
           animation: 'fadeIn 0.3s ease',
         }}>
+          <EmailVerificationBanner />
           <Outlet />
         </div>
       </main>
