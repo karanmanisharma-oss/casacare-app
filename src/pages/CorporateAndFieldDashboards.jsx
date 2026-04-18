@@ -98,7 +98,6 @@ export function FieldForceDashboard() {
   const [showNotifs, setShowNotifs] = useState(false)
   const [activeJob, setActiveJob] = useState(null)
   const [showPhotoUpload, setShowPhotoUpload] = useState(false)
-  const [heroImgOk, setHeroImgOk] = useState(true)
 
   async function load() {
     const { data } = await supabase.from('tickets').select('*').eq('assigned_to', profile?.id).order('scheduled_at', { ascending: true })
@@ -149,39 +148,36 @@ export function FieldForceDashboard() {
 
   return (
     <div className="anim-fade-up" style={{ position: 'relative' }}>
-      {/* Hero + bell */}
       <div style={{ position: 'relative', marginBottom: '24px' }}>
-        <div
-          style={{
-            position: 'relative',
-            borderRadius: 'var(--r-xl)',
-            overflow: 'hidden',
-            minHeight: '200px',
-            background: 'linear-gradient(125deg, #0a1628 0%, var(--navy) 40%, var(--teal-dark) 100%)',
-            boxShadow: 'var(--shadow-md)',
-          }}
-        >
-          {heroImgOk && (
-            <img
-              src="/brand/tech-male.jpg"
-              alt=""
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                opacity: 0.35,
-              }}
-              onError={() => setHeroImgOk(false)}
-            />
-          )}
+        <div style={{
+          borderRadius:'24px', overflow:'hidden',
+          marginBottom:'0', position:'relative', minHeight:'160px',
+          background:'linear-gradient(135deg, #1a2b4a 0%, #0F6E56 100%)',
+          boxShadow: 'var(--shadow-md)',
+        }}>
+          <img
+            src="/brand/electrician.jpg"
+            alt=""
+            style={{
+              position:'absolute', right:0, top:0,
+              width:'38%', height:'100%',
+              objectFit:'cover', opacity:0.5
+            }}
+            onError={e => {
+              e.target.src = '/brand/tech-male.jpg'
+              e.target.onerror = () => { e.target.style.display = 'none' }
+            }}
+          />
+          <div style={{
+            position:'absolute', inset:0,
+            background:'linear-gradient(90deg, rgba(26,43,74,0.95) 45%, transparent 100%)'
+          }}/>
           <div
             style={{
               position: 'absolute',
-              top: '16px',
-              right: '16px',
-              zIndex: 3,
+              top: '14px',
+              right: '14px',
+              zIndex: 4,
             }}
           >
             <button
@@ -249,11 +245,14 @@ export function FieldForceDashboard() {
               </div>
             )}
           </div>
-
-          <div style={{ position: 'relative', zIndex: 2, padding: '28px 24px 28px 24px', maxWidth: '720px' }}>
-            <h1 className="page-title" style={{ color: 'white', fontSize: 'clamp(22px, 4vw, 28px)', marginBottom: '8px' }}>My Jobs 🔧</h1>
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.85)', margin: 0 }}>
-              Today: <strong>{today.length}</strong> job{today.length !== 1 ? 's' : ''} scheduled
+          <div style={{ position:'relative', zIndex:2, padding:'28px', color:'white' }}>
+            <h2 style={{
+              fontSize:'22px', fontWeight:'800',
+              fontFamily:"'Plus Jakarta Sans',sans-serif",
+              marginBottom:'4px'
+            }}>My Jobs 🔧</h2>
+            <p style={{ fontSize:'13px', color:'rgba(255,255,255,0.7)' }}>
+              Verified CasaCare Technician
             </p>
           </div>
         </div>

@@ -75,14 +75,21 @@ export default function Login() {
 
         <div style={{ position:'relative', zIndex:1, color:'white', maxWidth:'380px', width:'100%' }}>
           {/* Logo */}
-          <div style={{ marginBottom:'32px' }}>
-            <img src="/brand/logo.svg" alt="CasaCare"
-              style={{ width:'64px', height:'64px', objectFit:'contain',
-                background:'rgba(255,255,255,0.1)', borderRadius:'18px',
-                padding:'10px', border:'1px solid rgba(255,255,255,0.15)' }}
-              onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }}
+          <div style={{ marginBottom:'32px', display:'flex', alignItems:'center', gap:'14px' }}>
+            <img
+              src="/brand/logo.jpg"
+              alt="CasaCare"
+              style={{
+                width:'72px', height:'72px',
+                objectFit:'contain',
+                borderRadius:'18px',
+                background:'rgba(255,255,255,0.12)',
+                padding:'8px',
+                border:'1px solid rgba(255,255,255,0.2)',
+                boxShadow:'0 8px 32px rgba(0,0,0,0.2)'
+              }}
+              onError={e => { e.target.outerHTML = '<div style="width:72px;height:72px;background:linear-gradient(135deg,#1D9E75,#0F6E56);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;color:white;">🏠</div>' }}
             />
-            <div style={{ display:'none', width:'64px', height:'64px', background:'rgba(255,255,255,0.1)', borderRadius:'18px', alignItems:'center', justifyContent:'center', fontSize:'28px', border:'1px solid rgba(255,255,255,0.15)' }}>🏠</div>
           </div>
 
           <h1 style={{ fontSize:'48px', fontWeight:'800', fontFamily:'var(--font-display)', lineHeight:1.05, marginBottom:'14px', letterSpacing:'-0.03em' }}>Casa<span style={{ color:'#5DCAA5' }}>Care</span></h1>

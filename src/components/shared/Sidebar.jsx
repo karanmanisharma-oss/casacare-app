@@ -56,19 +56,14 @@ export default function Sidebar() {
       {/* Logo */}
       <div style={{padding:'22px 18px 14px',borderBottom:'1px solid rgba(29,158,117,0.08)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{display:'flex',alignItems:'center',gap:'11px'}}>
-          <div style={{
-            width:'42px',height:'42px',flexShrink:0,
-            background:'linear-gradient(135deg, #1D9E75, #0F6E56)',
-            borderRadius:'13px',display:'flex',alignItems:'center',
-            justifyContent:'center',fontSize:'20px',
-            boxShadow:'0 4px 14px rgba(29,158,117,0.35)'
-          }}>
-            <img src="/brand/logo.svg" alt="CasaCare"
-              style={{width:'28px',height:'28px',objectFit:'contain'}}
-              onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='block'}}
-            />
-            <span style={{display:'none',fontSize:'20px'}}>🏠</span>
-          </div>
+          <img
+            src="/brand/logo.jpg"
+            alt="CasaCare"
+            style={{ width:'30px', height:'30px', objectFit:'contain' }}
+            onError={e => {
+              e.target.outerHTML = '<span style="font-size:20px">🏠</span>'
+            }}
+          />
           <div>
             <div style={{fontWeight:'800',fontSize:'16px',fontFamily:'var(--font-display)',color:'var(--navy)',letterSpacing:'-0.02em'}}>CasaCare</div>
             <div style={{fontSize:'10px',color:'var(--gray-400)',fontWeight:'600',letterSpacing:'0.06em',textTransform:'uppercase'}}>Property Hub</div>
@@ -148,7 +143,14 @@ export default function Sidebar() {
       }}>
         <button onClick={()=>setMobileOpen(true)} style={{background:'none',border:'none',fontSize:'22px',cursor:'pointer',padding:'4px',color:'var(--navy)'}}>☰</button>
         <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-          <div style={{width:'30px',height:'30px',background:'linear-gradient(135deg,#1D9E75,#0F6E56)',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px'}}>🏠</div>
+          <img
+            src="/brand/logo.jpg"
+            alt="CasaCare"
+            style={{ width:'30px', height:'30px', objectFit:'contain' }}
+            onError={e => {
+              e.target.outerHTML = '<span style="font-size:20px">🏠</span>'
+            }}
+          />
           <span style={{fontWeight:'800',fontSize:'16px',fontFamily:'var(--font-display)',color:'var(--navy)'}}>CasaCare</span>
         </div>
         <div style={{marginLeft:'auto',width:'34px',height:'34px',borderRadius:'50%',background:'linear-gradient(135deg,#1D9E75,#0F6E56)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontSize:'13px',fontWeight:'800',fontFamily:'var(--font-display)'}}>{initials}</div>
