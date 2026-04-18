@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 import { formatDate } from '../utils/date'
+import { notifyBookingLifecycle } from '../lib/bookingLifecycleNotify'
 
 const STATUS_BADGE = {
   open: 'badge-amber',
@@ -91,6 +92,9 @@ export default function AdminDashboard() {
     if (error) toast.error(error.message)
     else {
       toast.success('Status updated!')
+      if (status === 'closed') {
+        notifyBookingLifecycle(ticketId, 'service_completed').catch(() => {})
+      }
       loadData()
     }
   }
