@@ -5,8 +5,15 @@ import toast from 'react-hot-toast'
 
 /**
  * Supabase email confirmation redirect target (PKCE + implicit).
- * Add to Supabase → Auth → URL configuration → Redirect URLs:
- *   https://casacare-app.vercel.app/verify
+ *
+ * Dashboard: Authentication → URL configuration
+ * - Site URL: https://casacare-app.vercel.app
+ * - Redirect URLs (add all that you use):
+ *   https://casacare-app.vercel.app/**
+ *   http://localhost:5173/**   (Vite dev)
+ *   http://127.0.0.1:5173/**
+ *
+ * Optional: set VITE_AUTH_SITE_URL if the public URL differs from production defaults.
  */
 export default function VerifyEmail() {
   const [status, setStatus] = useState('loading')

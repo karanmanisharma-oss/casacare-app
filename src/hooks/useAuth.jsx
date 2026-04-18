@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { getAuthSiteOrigin } from '../lib/authSiteUrl'
 
 const AuthContext = createContext(null)
 
@@ -44,12 +45,11 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, fullName, role) {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://casacare-app.vercel.app'
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${origin}/verify`,
+        emailRedirectTo: `${getAuthSiteOrigin()}/verify`,
       },
     })
     if (error) return { error }

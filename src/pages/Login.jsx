@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
+import { getAuthSiteOrigin } from '../lib/authSiteUrl'
 import toast from 'react-hot-toast'
 
 export default function Login() {
@@ -39,9 +40,7 @@ export default function Login() {
     e.preventDefault()
     if (!resetEmail.trim()) { toast.error('Please enter your email'); return }
     setLoading(true)
-    const redirectTo = typeof window !== 'undefined'
-      ? `${window.location.origin}/reset-password`
-      : 'https://casacare-app.vercel.app/reset-password'
+    const redirectTo = `${getAuthSiteOrigin()}/reset-password`
     const { error } = await supabase.auth.resetPasswordForEmail(
       resetEmail.trim().toLowerCase(),
       { redirectTo }
