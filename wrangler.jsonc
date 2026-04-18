@@ -1,0 +1,9 @@
+{
+  // Cloudflare Workers deploy config (static assets).
+  // Required so `wrangler versions upload` knows what to upload.
+  "name": "casacare-app",
+  "compatibility_date": "2026-04-18",
+  "assets": {
+    "directory": "./dist"
+  }
+}
