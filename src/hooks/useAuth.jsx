@@ -44,7 +44,14 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, fullName, role) {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://casacare-app.vercel.app'
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${origin}/verify`,
+      },
+    })
     if (error) return { error }
     if (data.user) {
       await supabase.from('profiles').insert({
