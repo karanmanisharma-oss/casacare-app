@@ -12,7 +12,8 @@ export default function Login() {
   const [forgotMode, setForgotMode] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
   const [resetSent, setResetSent] = useState(false)
-  const { signIn } = useAuth()
+  const [resendVerifyBusy, setResendVerifyBusy] = useState(false)
+  const { signIn, resendSignupEmail } = useAuth()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -23,7 +24,10 @@ export default function Login() {
     const { error } = await signIn(email.trim().toLowerCase(), password)
     setLoading(false)
     if (error) {
-      if (error.message.includes('Invalid login') || error.message.includes('invalid_credentials')) {
+      const m = (error.message || '').toLowerCase()
+      if (m.includes('email not confirmed') || m.includes('not confirmed')) {
+        toast.error('Please verify your email first. Check your inbox or resend below.')
+      } else if (error.message.includes('Invalid login') || error.message.includes('invalid_credentials')) {
         toast.error('Wrong email or password. Please check and try again.')
       } else if (error.message.includes('rate limit')) {
         toast.error('Too many attempts. Please wait 5 minutes.')
@@ -160,6 +164,33 @@ export default function Login() {
                   {loading ? <><span className="spinner" style={{width:'18px',height:'18px'}}/>Signing in...</> : 'Sign in →'}
                 </button>
               </form>
+
+              <p style={{ textAlign: 'center', marginTop: '14px', fontSize: '13px', color: 'var(--gray-400)' }}>
+                Didn&apos;t get the signup email?{' '}
+                <button
+                  type="button"
+                  disabled={resendVerifyBusy || !email.trim()}
+                  onClick={async () => {
+                    setResendVerifyBusy(true)
+                    const { error: re } = await resendSignupEmail(email.trim().toLowerCase())
+                    setResendVerifyBusy(false)
+                    if (re) toast.error(re.message)
+                    else toast.success('If an account exists, we sent a new confirmation link.')
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--teal)',
+                    fontWeight: '700',
+                    cursor: email.trim() ? 'pointer' : 'not-allowed',
+                    fontFamily: 'var(--font-display)',
+                    padding: 0,
+                    fontSize: '13px',
+                  }}
+                >
+                  {resendVerifyBusy ? 'Sending…' : 'Resend confirmation'}
+                </button>
+              </p>
 
               <div style={{ display:'flex', alignItems:'center', gap:'12px', margin:'24px 0' }}>
                 <div style={{ flex:1, height:'1px', background:'var(--gray-100)' }}/>

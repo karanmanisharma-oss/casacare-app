@@ -13,7 +13,9 @@ const ROLES = [
 export default function Register() {
   const [form, setForm] = useState({ email:'', password:'', fullName:'', role:'individual', phone:'' })
   const [loading, setLoading] = useState(false)
-  const { signUp } = useAuth()
+  const [awaitingEmail, setAwaitingEmail] = useState(null)
+  const [resendBusy, setResendBusy] = useState(false)
+  const { signUp, resendSignupEmail } = useAuth()
   const navigate = useNavigate()
   const set = (k,v) => setForm(f=>({...f,[k]:v}))
 
@@ -23,10 +25,34 @@ export default function Register() {
     if (!form.email.trim()) { toast.error('Please enter your email'); return }
     if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
     setLoading(true)
-    const { error } = await signUp(form.email.trim().toLowerCase(), form.password, form.fullName.trim(), form.role)
+    const result = await signUp(
+      form.email.trim().toLowerCase(),
+      form.password,
+      form.fullName.trim(),
+      form.role,
+      form.phone,
+    )
     setLoading(false)
+    if (result.error) {
+      toast.error(result.error.message)
+      return
+    }
+    if (result.needsEmailConfirmation) {
+      setAwaitingEmail(result.email)
+      toast.success('Check your email to verify your account.')
+      return
+    }
+    toast.success('Welcome to CasaCare!')
+    navigate('/dashboard')
+  }
+
+  async function handleResendSignup() {
+    if (!awaitingEmail) return
+    setResendBusy(true)
+    const { error } = await resendSignupEmail(awaitingEmail)
+    setResendBusy(false)
     if (error) toast.error(error.message)
-    else { toast.success('Account created! Please sign in.'); navigate('/login') }
+    else toast.success('We sent another confirmation email.')
   }
 
   return (
@@ -79,12 +105,40 @@ export default function Register() {
       }}>
         <div style={{ width:'100%', animation:'fadeUp 0.6s ease 0.15s both' }}>
           <div style={{ marginBottom:'26px' }}>
-            <h2 style={{ fontSize:'28px', fontWeight:'800', fontFamily:'var(--font-display)', color:'var(--gray-800)', marginBottom:'6px', letterSpacing:'-0.02em' }}>Create your account</h2>
-            <p style={{ fontSize:'14px', color:'var(--gray-400)' }}>Choose your role to personalise your experience</p>
+            <h2 style={{ fontSize:'28px', fontWeight:'800', fontFamily:'var(--font-display)', color:'var(--gray-800)', marginBottom:'6px', letterSpacing:'-0.02em' }}>
+              {awaitingEmail ? 'Almost there' : 'Create your account'}
+            </h2>
+            <p style={{ fontSize:'14px', color:'var(--gray-400)' }}>
+              {awaitingEmail ? 'One more step — check your inbox' : 'Choose your role to personalise your experience'}
+            </p>
           </div>
 
+          {awaitingEmail && (
+            <div style={{
+              marginBottom: '24px',
+              padding: '20px',
+              borderRadius: '16px',
+              background: '#f0fdf4',
+              border: '1px solid rgba(29, 158, 117, 0.35)',
+            }}>
+              <h3 style={{ margin: '0 0 8px', fontSize: '17px', fontWeight: '800', color: 'var(--navy)' }}>Verify your email</h3>
+              <p style={{ margin: '0 0 12px', fontSize: '14px', color: '#4b5563', lineHeight: 1.55 }}>
+                We sent a confirmation link to <strong>{awaitingEmail}</strong>. Open it on this device or any phone — it will take you to CasaCare to finish setup.
+              </p>
+              <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#6b7280' }}>
+                Didn&apos;t get it? Check spam / Promotions. Still nothing?
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                <button type="button" className="btn btn-primary" disabled={resendBusy} onClick={handleResendSignup}>
+                  {resendBusy ? 'Sending…' : 'Resend confirmation email'}
+                </button>
+                <Link to="/login" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Go to sign in</Link>
+              </div>
+            </div>
+          )}
+
           {/* Role selector */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'24px' }}>
+          <div style={{ display: awaitingEmail ? 'none' : 'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'24px' }}>
             {ROLES.map((r,i) => (
               <div key={r.value} onClick={()=>set('role',r.value)} style={{
                 border:`2px solid ${form.role===r.value ? r.color : 'var(--gray-200)'}`,
@@ -102,7 +156,7 @@ export default function Register() {
             ))}
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ display: awaitingEmail ? 'none' : 'block' }}>
             <div className="form-group">
               <label className="form-label">Full name</label>
               <input className="form-input" value={form.fullName}
@@ -134,10 +188,12 @@ export default function Register() {
             </button>
           </form>
 
-          <p style={{ textAlign:'center', marginTop:'20px', fontSize:'14px', color:'var(--gray-400)' }}>
-            Already have an account?{' '}
-            <Link to="/login" style={{ color:'var(--teal)', fontWeight:'700', textDecoration:'none' }}>Sign in →</Link>
-          </p>
+          {!awaitingEmail && (
+            <p style={{ textAlign:'center', marginTop:'20px', fontSize:'14px', color:'var(--gray-400)' }}>
+              Already have an account?{' '}
+              <Link to="/login" style={{ color:'var(--teal)', fontWeight:'700', textDecoration:'none' }}>Sign in →</Link>
+            </p>
+          )}
         </div>
       </div>
 
