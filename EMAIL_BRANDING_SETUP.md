@@ -72,3 +72,8 @@ Calling SendGrid from the browser would **expose** the API key. For transactiona
 ## 6. Production check
 
 After SMTP is live, run through: **register → inbox (CasaCare sender + branding) → link → `/verify` → dashboard → forgot password → `/reset-password`.**
+
+## 7. Technician job alerts (in-app + SMS)
+
+- When an **admin assigns** a ticket, the app calls the Edge Function `notify-technician-assignment`: it inserts the **in-app** notification (service role, reliable) and logs / sends **SMS** when `MSG91_AUTHKEY` + `MSG91_SENDER_ID` are set on the function.
+- Field technicians see a **real-time bell** update if **Realtime** is enabled for the `notifications` table (Supabase → **Database → Publications** / table Realtime toggle).

@@ -367,6 +367,9 @@ allow_dynamic_registration = false
 [functions.send-booking-email]
 verify_jwt = true
 
+[functions.notify-technician-assignment]
+verify_jwt = true
+
 [edge_runtime]
 enabled = true
 # Supported request policies: `oneshot`, `per_worker`.
