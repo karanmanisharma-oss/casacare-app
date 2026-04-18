@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy:workers": "npm run build && wrangler versions upload",
+    "deploy:workers": "npm run build && wrangler deploy",
     "db:login": "supabase login",
     "db:link": "supabase link --project-ref tmiapgccvjdhsflcvotg",
     "db:push": "supabase db push",
