@@ -9,6 +9,7 @@ import { CorporateDashboard, FieldForceDashboard } from './pages/CorporateAndFie
 import AdminDashboard from './pages/AdminDashboard'
 import HealthCheck from './pages/HealthCheck'
 import ResetPassword from './pages/ResetPassword'
+import VerifyEmail from './pages/VerifyEmail'
 import { useSessionGuard } from './hooks/useSessionGuard'
 
 function AppLayout() {
@@ -56,6 +57,7 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/verify" element={<VerifyEmail />} />
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

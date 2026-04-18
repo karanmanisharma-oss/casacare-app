@@ -39,9 +39,12 @@ export default function Login() {
     e.preventDefault()
     if (!resetEmail.trim()) { toast.error('Please enter your email'); return }
     setLoading(true)
+    const redirectTo = typeof window !== 'undefined'
+      ? `${window.location.origin}/reset-password`
+      : 'https://casacare-app.vercel.app/reset-password'
     const { error } = await supabase.auth.resetPasswordForEmail(
       resetEmail.trim().toLowerCase(),
-      { redirectTo: 'https://casacare-app.vercel.app/reset-password' }
+      { redirectTo }
     )
     setLoading(false)
     if (error) toast.error(error.message)
