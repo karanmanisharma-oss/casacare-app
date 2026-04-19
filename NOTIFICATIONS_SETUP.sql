@@ -18,7 +18,12 @@ CREATE POLICY "Users see own notifications" ON notifications
 CREATE POLICY "Users update own notifications" ON notifications
   FOR UPDATE USING (auth.uid() = user_id);
 
+-- Uses profiles.role directly so this script works even if get_user_role() was never created
+-- (see supabase/migrations/20250415000003_recursion_fix.sql for the optional helper).
 CREATE POLICY "Admin insert notifications" ON notifications
   FOR INSERT WITH CHECK (
-    get_user_role(auth.uid()) = 'admin'
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid() AND p.role = 'admin'
+    )
   );
