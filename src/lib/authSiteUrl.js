@@ -6,7 +6,12 @@
 export function getAuthSiteOrigin() {
   const fromEnv = import.meta.env.VITE_AUTH_SITE_URL
   if (fromEnv && String(fromEnv).trim()) {
-    return String(fromEnv).trim().replace(/\/$/, '')
+    const u = String(fromEnv).trim().replace(/\/$/, '')
+    // Production builds must not use localhost in emailed links — a bad Vercel env breaks reset/verify on phones
+    if (import.meta.env.PROD && /localhost|127\.0\.0\.1/i.test(u)) {
+      return 'https://casacare-app.vercel.app'
+    }
+    return u
   }
   if (import.meta.env.PROD) {
     return 'https://casacare-app.vercel.app'
