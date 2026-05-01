@@ -26,7 +26,8 @@ CREATE POLICY "Users view own profile" ON profiles
 CREATE POLICY "Users update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY IF NOT EXISTS "Users insert own profile" ON profiles
+DROP POLICY IF EXISTS "Users insert own profile" ON profiles;
+CREATE POLICY "Users insert own profile" ON profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Admin view all profiles" ON profiles

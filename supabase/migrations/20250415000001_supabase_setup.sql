@@ -87,43 +87,56 @@ alter table amc_contracts enable row level security;
 alter table ticket_photos enable row level security;
 
 -- Profiles: users can read/update their own profile
+drop policy if exists "Users can view own profile" on profiles;
 create policy "Users can view own profile" on profiles for select using (auth.uid() = id);
+drop policy if exists "Users can update own profile" on profiles;
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
+drop policy if exists "Users can insert own profile" on profiles;
 create policy "Users can insert own profile" on profiles for insert with check (auth.uid() = id);
 
 -- Admins can read every profile (for admin dashboard / assignments)
+drop policy if exists "Admin read all profiles" on profiles;
 create policy "Admin read all profiles" on profiles for select using (
   exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
 );
 
 -- Properties: NRI owners see only their properties
+drop policy if exists "Owners see own properties" on properties;
 create policy "Owners see own properties" on properties for select using (auth.uid() = owner_id);
+drop policy if exists "Owners manage own properties" on properties;
 create policy "Owners manage own properties" on properties for all using (auth.uid() = owner_id);
 
 -- Tickets: users see their own; field force sees assigned; corporate sees all
+drop policy if exists "Users see own tickets" on tickets;
 create policy "Users see own tickets" on tickets for select using (
   auth.uid() = user_id OR 
   auth.uid() = assigned_to OR
   exists (select 1 from profiles where id = auth.uid() and role = 'corporate') OR
   exists (select 1 from profiles where id = auth.uid() and role = 'admin')
 );
+drop policy if exists "Users create own tickets" on tickets;
 create policy "Users create own tickets" on tickets for insert with check (auth.uid() = user_id);
+drop policy if exists "Users update own tickets" on tickets;
 create policy "Users update own tickets" on tickets for update using (
   auth.uid() = user_id OR auth.uid() = assigned_to OR
   exists (select 1 from profiles where id = auth.uid() and role in ('corporate', 'admin'))
 );
 
 -- AMC: clients see own contracts
-create policy "Clients see own contracts" on amc_contracts for select using (auth.uid() = client_id);
+drop policy if exists "Clients see own contracts" on amc_contracts;
+create policy "Clients see own contracts" on amc_contracts for select using (auth.uid() = user_id);
+drop policy if exists "Admin manages contracts" on amc_contracts;
 create policy "Admin manages contracts" on amc_contracts for all using (
   exists (select 1 from profiles where id = auth.uid() and role in ('corporate', 'admin'))
 );
 
 -- Photos: visible to ticket owner and assigned tech
+drop policy if exists "See ticket photos" on ticket_photos;
 create policy "See ticket photos" on ticket_photos for select using (
   exists (select 1 from tickets where id = ticket_id and (user_id = auth.uid() or assigned_to = auth.uid())) OR
   exists (select 1 from profiles where id = auth.uid() and role in ('corporate', 'admin', 'nri'))
 );
+drop policy if exists "Upload photos" on ticket_photos;
 create policy "Upload photos" on ticket_photos for insert with check (auth.uid() = uploaded_by);
 
 -- ================================================

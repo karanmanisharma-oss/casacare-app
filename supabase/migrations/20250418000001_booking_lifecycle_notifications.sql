@@ -25,10 +25,12 @@ CREATE INDEX IF NOT EXISTS idx_booking_notifications_event_type ON booking_notif
 
 ALTER TABLE booking_notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own booking notifications" ON booking_notifications;
 CREATE POLICY "Users can view own booking notifications"
   ON booking_notifications FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can view all booking notifications" ON booking_notifications;
 CREATE POLICY "Admins can view all booking notifications"
   ON booking_notifications FOR SELECT
   USING (

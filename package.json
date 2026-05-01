@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "deploy:workers": "npm run build && wrangler deploy",
     "db:login": "supabase login",
-    "db:link": "supabase link --project-ref tmiapgccvjdhsflcvotg",
+    "db:link": "supabase link --project-ref dkgthfdvuulytfancwes",
     "db:push": "supabase db push",
     "db:push:dry": "supabase db push --dry-run"
   },
