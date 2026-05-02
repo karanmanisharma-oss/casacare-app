@@ -10,6 +10,7 @@ import {
   htmlFollowup3d,
   subjects,
 } from "./emailBodies.ts"
+import { protectArcjetRequest } from "../_shared/arcjet.ts"
 
 const cors: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -105,11 +106,14 @@ async function sendSendGrid(to: string, subject: string, html: string): Promise<
   return { ok: false, err: `${res.status} ${t}` }
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withArcjetProtection(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors })
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "POST only" }), { status: 405, headers: { ...cors, "Content-Type": "application/json" } })
   }
+
+  const denied = await protectArcjetRequest(req, cors)
+  if (denied) return denied
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!
@@ -239,4 +243,4 @@ Deno.serve(async (req) => {
     const msg = e instanceof Error ? e.message : String(e)
     return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } })
   }
-})
+}, cors))
