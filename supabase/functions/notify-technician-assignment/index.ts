@@ -3,6 +3,7 @@
  * Invoke with user JWT (admin). Body: { ticket_id: string }
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1"
+import { withArcjetProtection } from "../_shared/arcjet.ts"
 
 const cors: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -51,7 +52,7 @@ async function tryMsg91Send(mobile10: string, message: string): Promise<{ ok: bo
   return { ok: true }
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withArcjetProtection(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors })
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "POST only" }), { status: 405, headers: { ...cors, "Content-Type": "application/json" } })
@@ -162,4 +163,4 @@ Deno.serve(async (req) => {
     const msg = e instanceof Error ? e.message : String(e)
     return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } })
   }
-})
+}, cors))
