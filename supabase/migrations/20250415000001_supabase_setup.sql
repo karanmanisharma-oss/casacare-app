@@ -124,7 +124,7 @@ create policy "Users update own tickets" on tickets for update using (
 
 -- AMC: clients see own contracts
 drop policy if exists "Clients see own contracts" on amc_contracts;
-create policy "Clients see own contracts" on amc_contracts for select using (auth.uid() = user_id);
+create policy "Clients see own contracts" on amc_contracts for select using (auth.uid() = client_id);
 drop policy if exists "Admin manages contracts" on amc_contracts;
 create policy "Admin manages contracts" on amc_contracts for all using (
   exists (select 1 from profiles where id = auth.uid() and role in ('corporate', 'admin'))
